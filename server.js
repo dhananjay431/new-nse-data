@@ -2,13 +2,18 @@ const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
 const helmet = require("helmet");
+const path = require("path");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
-app.use(helmet());
+app.use(
+  helmet({
+    contentSecurityPolicy: false,
+  }),
+);
 app.use(express.json());
 
 // ── Cookie Management ──────────────────────────────────────────────────────
@@ -209,6 +214,16 @@ app.get("/api/option-chain-contract-info", async (req, res) => {
   }
 });
 
+// ── Serve Frontend ──────────────────────────────────────────────────────────
+const distPath = path.join(__dirname, "frontend", "dist");
+app.use(express.static(distPath));
+
+// Catch-all: serve index.html for client-side routing (must be after API routes)
+app.get("*", (req, res) => {
+  res.sendFile(path.join(distPath, "index.html"));
+});
+
 app.listen(PORT, () => {
-  console.log(`Proxy server running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
+  console.log(`Frontend served from ${distPath}`);
 });
