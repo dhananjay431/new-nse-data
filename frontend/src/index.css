@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-800;
+  }
+  
+  html.dark body {
+    @apply bg-slate-900 text-slate-100;
+  }
+  
+  /* Ensure all elements inherit the correct background and text colors */
+  .bg-white {
+    @apply dark:bg-slate-800;
+  }
+  
+  .text-slate-700 {
+    @apply dark:text-slate-200;
+  }
+  
+  .text-slate-600 {
+    @apply dark:text-slate-300;
+  }
+  
+  .text-slate-500 {
+    @apply dark:text-slate-400;
+  }
+  
+  .border-slate-200 {
+    @apply dark:border-slate-700;
+  }
+  
+  .bg-slate-50 {
+    @apply dark:bg-slate-700;
+  }
+  
+  .border-slate-300 {
+    @apply dark:border-slate-600;
+  }
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-slate-100 dark:bg-slate-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-300 dark:bg-slate-600 rounded;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-slate-400 dark:bg-slate-500;
+}
