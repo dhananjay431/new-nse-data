@@ -309,9 +309,20 @@ export default function IndexTablePage() {
                               : "text-slate-700 dark:text-slate-300"
                         }`}
                       >
-                        {pChangeFields.includes(col) && row[col] != null
-                          ? `${Number(row[col]).toFixed(2)}%`
-                          : fmt(row[col])}
+                        {col === "symbol" ? (
+                          <a
+                            href={`https://www.tradingview.com/chart/?symbol=NSE:${row[col]}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-primary-600 dark:text-primary-400 hover:underline font-medium"
+                          >
+                            {fmt(row[col])}
+                          </a>
+                        ) : pChangeFields.includes(col) && row[col] != null ? (
+                          `${Number(row[col]).toFixed(2)}%`
+                        ) : (
+                          fmt(row[col])
+                        )}
                       </td>
                     ))}
                   </tr>
