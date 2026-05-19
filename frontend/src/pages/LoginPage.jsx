@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { BarChart3, Eye, EyeOff, LogIn } from "lucide-react";
+import ConstellationBackground from "../components/ConstellationBackground";
 
 export default function LoginPage() {
   const { user, login } = useAuth();
@@ -41,12 +42,9 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 px-3 sm:px-4">
-      {/* Background decoration */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary-500/10 rounded-full blur-3xl" />
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary-500/10 rounded-full blur-3xl" />
-      </div>
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden px-3 sm:px-4">
+      {/* Animated constellation background */}
+      <ConstellationBackground />
 
       <div className="relative w-full max-w-md">
         {/* Logo & Brand */}
@@ -55,7 +53,7 @@ export default function LoginPage() {
             <BarChart3 className="w-8 h-8 text-white" />
           </div>
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-white">
-            NSE Dashboard
+            Dashboard
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 mt-1.5 sm:mt-2">
             Sign in to access market data and analytics
@@ -151,7 +149,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <p className="text-center text-[10px] sm:text-xs text-slate-600 mt-4 sm:mt-6">
-          © {new Date().getFullYear()} NSE Dashboard. All rights reserved.
+          © {new Date().getFullYear()} Dhananjay Belhekar. All rights reserved.
         </p>
       </div>
     </div>
