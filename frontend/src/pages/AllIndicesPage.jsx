@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { fetchAllIndices } from "../api/client";
 import {
   ChevronDown,
@@ -100,6 +100,28 @@ export default function AllIndicesPage() {
   const [groupBy, setGroupBy] = useState("");
   const [groupValue, setGroupValue] = useState("");
   const [viewMode, setViewMode] = useState("table");
+  const allIdxScrollRef = useRef(null);
+  const [allIdxScrollShadow, setAllIdxScrollShadow] = useState("");
+
+  useEffect(() => {
+    const el = allIdxScrollRef.current;
+    if (!el) return;
+    const handleScroll = () => {
+      const { scrollLeft, scrollWidth, clientWidth } = el;
+      if (scrollLeft > 0 && scrollLeft + clientWidth < scrollWidth - 1) {
+        setAllIdxScrollShadow("scroll-shadow-both");
+      } else if (scrollLeft > 0) {
+        setAllIdxScrollShadow("scroll-shadow-left");
+      } else if (scrollLeft + clientWidth < scrollWidth - 1) {
+        setAllIdxScrollShadow("scroll-shadow-right");
+      } else {
+        setAllIdxScrollShadow("");
+      }
+    };
+    el.addEventListener("scroll", handleScroll);
+    handleScroll();
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -180,21 +202,24 @@ export default function AllIndicesPage() {
   function renderSortableTable() {
     return (
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 overflow-hidden">
-        <div className="px-2 sm:px-4 py-1.5 sm:py-2 border-b border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2 bg-slate-50 dark:bg-slate-700">
+        <div className="px-2 sm:px-4 py-1.5 sm:py-2 border-b border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2 bg-slate-50 dark:bg-slate-700 flex-shrink-0">
           <span className="font-medium">{sortedRows.length}</span> rows
         </div>
-        <div className="overflow-auto max-h-[65vh]">
+        <div
+          ref={allIdxScrollRef}
+          className={`sticky-table-wrapper ${allIdxScrollShadow}`}
+        >
           <table className="min-w-full text-xs sm:text-sm text-left">
-            <thead className="sticky-header bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+            <thead className="sticky-header text-slate-700 dark:text-slate-200">
               <tr>
-              {visibleColumns.map((col, colIdx) => (
-                <th
-                  key={col}
-                  className={`px-2 sm:px-4 py-2 sm:py-3 font-semibold border-b border-slate-200 dark:border-slate-700 cursor-pointer select-none whitespace-nowrap ${
-                    colIdx === 0 ? "sticky-first-col-header bg-slate-50 dark:bg-slate-700" : ""
-                  }`}
-                  onClick={() => handleSort(col)}
-                >
+                {visibleColumns.map((col, colIdx) => (
+                  <th
+                    key={col}
+                    className={`px-2 sm:px-4 py-2 sm:py-3 font-semibold border-b border-slate-200 dark:border-slate-700 cursor-pointer select-none whitespace-nowrap ${
+                      colIdx === 0 ? "sticky-first-col-header" : ""
+                    }`}
+                    onClick={() => handleSort(col)}
+                  >
                     <div className="flex items-center gap-1">
                       <span className="uppercase tracking-wide text-[10px] sm:text-xs">
                         {col.replace(/([A-Z])/g, " $1").trim()}
@@ -209,14 +234,14 @@ export default function AllIndicesPage() {
                   </th>
                 ))}
               </tr>
-              <tr className="bg-white dark:bg-slate-800">
-              {visibleColumns.map((col, colIdx) => (
-                <th
-                  key={col}
-                  className={`px-2 sm:px-4 py-1.5 sm:py-2 border-b border-slate-200 dark:border-slate-700 ${
-                    colIdx === 0 ? "sticky-first-col-header bg-white dark:bg-slate-800" : ""
-                  }`}
-                >
+              <tr>
+                {visibleColumns.map((col, colIdx) => (
+                  <th
+                    key={col}
+                    className={`px-2 sm:px-4 py-1.5 sm:py-2 border-b border-slate-200 dark:border-slate-700 ${
+                      colIdx === 0 ? "sticky-first-col-header" : ""
+                    }`}
+                  >
                     <div className="flex items-center gap-1">
                       <select
                         value={filters[col]?.operator || "="}
@@ -263,17 +288,13 @@ export default function AllIndicesPage() {
                     row.percChange ||
                     row.change ||
                     0;
-                  const rowBg = getRowBg(Number(pChange));
                   return (
-                    <tr
-                      key={idx}
-                      className={`${rowBg} hover:brightness-95 dark:hover:brightness-110 transition-colors`}
-                    >
-                       {visibleColumns.map((col, colIdx) => (
+                    <tr key={idx} className="transition-colors">
+                      {visibleColumns.map((col, colIdx) => (
                         <td
                           key={col}
                           className={`px-2 sm:px-4 py-1.5 sm:py-2 whitespace-nowrap ${
-                            colIdx === 0 ? "sticky-first-col bg-white dark:bg-slate-800" : ""
+                            colIdx === 0 ? "sticky-first-col font-medium" : ""
                           } ${
                             pChangeFields.includes(col)
                               ? row[col] > 0

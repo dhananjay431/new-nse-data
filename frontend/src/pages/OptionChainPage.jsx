@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useCallback } from "react";
+import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import {
   fetchOptionChainContractInfo,
   fetchOptionChainData,
@@ -38,6 +38,28 @@ export default function OptionChainPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [spotPrice, setSpotPrice] = useState(0);
+  const optionScrollRef = useRef(null);
+  const [optionScrollShadow, setOptionScrollShadow] = useState("");
+
+  useEffect(() => {
+    const el = optionScrollRef.current;
+    if (!el) return;
+    const handleScroll = () => {
+      const { scrollLeft, scrollWidth, clientWidth } = el;
+      if (scrollLeft > 0 && scrollLeft + clientWidth < scrollWidth - 1) {
+        setOptionScrollShadow("scroll-shadow-both");
+      } else if (scrollLeft > 0) {
+        setOptionScrollShadow("scroll-shadow-left");
+      } else if (scrollLeft + clientWidth < scrollWidth - 1) {
+        setOptionScrollShadow("scroll-shadow-right");
+      } else {
+        setOptionScrollShadow("");
+      }
+    };
+    el.addEventListener("scroll", handleScroll);
+    handleScroll();
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const loadContractInfo = useCallback(async (symbol) => {
     setLoading(true);
@@ -290,9 +312,13 @@ export default function OptionChainPage() {
                 </div>
               ) : tableData.length > 0 ? (
                 <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 overflow-hidden">
-                  <div className="overflow-auto max-h-[70vh]">
+                  <div
+                    ref={optionScrollRef}
+                    className={`sticky-table-wrapper ${optionScrollShadow}`}
+                    style={{ maxHeight: "70vh" }}
+                  >
                     <table className="min-w-full text-xs sm:text-sm text-left">
-                      <thead className="bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-300 sticky top-0 z-10">
+                      <thead className="sticky-header text-slate-700 dark:text-slate-300">
                         <tr>
                           <th
                             colSpan={5}
@@ -300,7 +326,7 @@ export default function OptionChainPage() {
                           >
                             CALLS
                           </th>
-                          <th className="px-2 sm:px-3 py-1.5 sm:py-2 font-bold text-center border-b border-slate-200 dark:border-slate-600 bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400 text-[10px] sm:text-xs">
+                          <th className="sticky-strike-col-header px-2 sm:px-3 py-1.5 sm:py-2 font-bold text-center border-b border-slate-200 dark:border-slate-600 bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400 text-[10px] sm:text-xs">
                             Strike
                           </th>
                           <th
@@ -326,7 +352,7 @@ export default function OptionChainPage() {
                           <th className="px-2 sm:px-3 py-1.5 sm:py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-[10px] sm:text-xs">
                             LTP
                           </th>
-                          <th className="px-2 sm:px-3 py-1.5 sm:py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-center text-[10px] sm:text-xs">
+                          <th className="sticky-strike-col-header px-2 sm:px-3 py-1.5 sm:py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-center text-[10px] sm:text-xs">
                             Strike
                           </th>
                           <th className="px-2 sm:px-3 py-1.5 sm:py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-[10px] sm:text-xs">
@@ -352,11 +378,7 @@ export default function OptionChainPage() {
                           return (
                             <tr
                               key={idx}
-                              className={`transition-colors ${
-                                isATM
-                                  ? "bg-yellow-50 dark:bg-yellow-900/20"
-                                  : "hover:bg-slate-50 dark:hover:bg-slate-700/50"
-                              }`}
+                              className={`transition-colors ${isATM ? "atm-row" : ""}`}
                             >
                               <td className="px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
                                 {row.callOI.toLocaleString()}
@@ -374,9 +396,9 @@ export default function OptionChainPage() {
                                 {row.callLTP}
                               </td>
                               <td
-                                className={`px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap font-bold text-center ${
+                                className={`sticky-strike-col px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap font-bold text-center ${
                                   isATM
-                                    ? "text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30"
+                                    ? "text-amber-700 dark:text-amber-400"
                                     : "text-slate-800 dark:text-slate-200"
                                 }`}
                               >

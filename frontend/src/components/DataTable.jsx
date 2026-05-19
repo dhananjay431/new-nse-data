@@ -1,4 +1,4 @@
-import { useMemo, useState, useCallback } from "react";
+import { useMemo, useState, useCallback, useRef, useEffect } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 const HIDDEN_COLS = new Set([
@@ -54,6 +54,28 @@ function applyFilter(rowValue, operator, filterValue) {
 export default function DataTable({ rows }) {
   const [sort, setSort] = useState({ key: null, direction: "asc" });
   const [filters, setFilters] = useState({});
+  const scrollRef = useRef(null);
+  const [scrollShadow, setScrollShadow] = useState("");
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const handleScroll = () => {
+      const { scrollLeft, scrollWidth, clientWidth } = el;
+      if (scrollLeft > 0 && scrollLeft + clientWidth < scrollWidth - 1) {
+        setScrollShadow("scroll-shadow-both");
+      } else if (scrollLeft > 0) {
+        setScrollShadow("scroll-shadow-left");
+      } else if (scrollLeft + clientWidth < scrollWidth - 1) {
+        setScrollShadow("scroll-shadow-right");
+      } else {
+        setScrollShadow("");
+      }
+    };
+    el.addEventListener("scroll", handleScroll);
+    handleScroll();
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const columns = useMemo(() => {
     if (!rows.length) return [];
@@ -108,20 +130,23 @@ export default function DataTable({ rows }) {
     });
   }, [filteredRows, sort]);
 
+  // Calculate dynamic top offset for filter row based on header row height
+  const headerRowHeight = 36; // approximate height of header row in px
+
   return (
     <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 overflow-hidden flex-1 flex flex-col">
       <div className="px-2 sm:px-4 py-1.5 sm:py-2 border-b border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2 bg-slate-50 dark:bg-slate-700 flex-shrink-0">
         <span className="font-medium">{filteredRows.length}</span> rows
       </div>
-      <div className="overflow-auto flex-1">
+      <div ref={scrollRef} className={`sticky-table-wrapper ${scrollShadow}`}>
         <table className="min-w-full text-xs sm:text-sm text-left">
-          <thead className="sticky-header bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
+          <thead className="sticky-header text-slate-700 dark:text-slate-200">
             <tr>
               {columns.map((col, colIdx) => (
                 <th
                   key={col}
                   className={`px-2 sm:px-4 py-2 sm:py-3 font-semibold border-b border-slate-200 dark:border-slate-700 cursor-pointer select-none whitespace-nowrap ${
-                    colIdx === 0 ? "sticky-first-col-header bg-slate-50 dark:bg-slate-700" : ""
+                    colIdx === 0 ? "sticky-first-col-header" : ""
                   }`}
                   onClick={() => handleSort(col)}
                 >
@@ -139,13 +164,14 @@ export default function DataTable({ rows }) {
                 </th>
               ))}
             </tr>
-            <tr className="bg-white dark:bg-slate-800">
+            <tr>
               {columns.map((col, colIdx) => (
                 <th
                   key={col}
                   className={`px-2 sm:px-4 py-1.5 sm:py-2 border-b border-slate-200 dark:border-slate-700 ${
-                    colIdx === 0 ? "sticky-first-col-header bg-white dark:bg-slate-800" : ""
+                    colIdx === 0 ? "sticky-first-col-header" : ""
                   }`}
+                  style={colIdx === 0 ? { top: `${headerRowHeight}px` } : {}}
                 >
                   <div className="flex items-center gap-1">
                     <select
@@ -188,15 +214,12 @@ export default function DataTable({ rows }) {
               </tr>
             ) : (
               sortedRows.map((row, idx) => (
-                <tr
-                  key={idx}
-                  className="hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors"
-                >
+                <tr key={idx} className="transition-colors">
                   {columns.map((col, colIdx) => (
                     <td
                       key={col}
                       className={`px-2 sm:px-4 py-1.5 sm:py-2 whitespace-nowrap text-slate-700 dark:text-slate-300 ${
-                        colIdx === 0 ? "sticky-first-col bg-white dark:bg-slate-800" : ""
+                        colIdx === 0 ? "sticky-first-col font-medium" : ""
                       }`}
                     >
                       {row[col] != null ? String(row[col]) : ""}

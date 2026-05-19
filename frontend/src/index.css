@@ -60,58 +60,227 @@
   flex-direction: column;
 }
 
+/* ── Custom Scrollbar ── */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
   @apply bg-slate-100 dark:bg-slate-800;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-slate-300 dark:bg-slate-600 rounded;
+  @apply bg-slate-300 dark:bg-slate-600 rounded-full;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-slate-400 dark:bg-slate-500;
 }
 
-/* ── Sticky first column classes for scrollable tables ── */
+/* Smooth scrolling for all scroll containers */
+* {
+  scroll-behavior: smooth;
+}
+
+/* ── Sticky Table System ── */
+
+/* Scrollable table wrapper with scroll shadow indicators */
+.sticky-table-wrapper {
+  overflow: auto;
+  max-height: 65vh;
+  position: relative;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+.dark .sticky-table-wrapper {
+  scrollbar-color: #475569 #1e293b;
+}
+
+/* Left scroll shadow indicator */
+.sticky-table-wrapper.scroll-shadow-left::before,
+.sticky-table-wrapper.scroll-shadow-both::before {
+  content: "";
+  position: sticky;
+  left: 0;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: transparent;
+  box-shadow: 4px 0 8px -2px rgba(0, 0, 0, 0.15);
+  z-index: 70;
+  pointer-events: none;
+  display: block;
+  float: left;
+}
+
+.dark .sticky-table-wrapper.scroll-shadow-left::before,
+.dark .sticky-table-wrapper.scroll-shadow-both::before {
+  box-shadow: 4px 0 8px -2px rgba(0, 0, 0, 0.4);
+}
+
+/* Sticky first column - data rows */
 .sticky-first-col {
   position: sticky;
   left: 0;
-  z-index: 50;
-  box-shadow: 2px 0 4px -1px rgba(0, 0, 0, 0.15);
+  z-index: 10;
+  background-color: #ffffff;
+  border-right: 1px solid #e2e8f0;
 }
 
 .dark .sticky-first-col {
-  box-shadow: 2px 0 4px -1px rgba(0, 0, 0, 0.4);
+  background-color: #1e293b;
+  border-right-color: #334155;
 }
 
-/* Sticky header row: each th sticks to top; first th also sticks left */
+/* Sticky first column - header rows (higher z-index for corner cell) */
+.sticky-first-col-header {
+  position: sticky;
+  left: 0;
+  z-index: 60;
+  border-right: 1px solid #e2e8f0;
+}
+
+.dark .sticky-first-col-header {
+  border-right-color: #334155;
+}
+
+/* Sticky header row 1 (column names) */
 thead.sticky-header tr:nth-child(1) th {
   position: sticky;
   top: 0;
   z-index: 20;
 }
 
+/* Sticky header row 2 (filter row) */
 thead.sticky-header tr:nth-child(2) th {
   position: sticky;
-  top: 2.25rem;
   z-index: 20;
 }
 
-th.sticky-first-col-header,
-thead .sticky-first-col-header {
+/* Alternating row colors */
+.sticky-table-wrapper tbody tr:nth-child(even) {
+  background-color: #f8fafc;
+}
+
+.dark .sticky-table-wrapper tbody tr:nth-child(even) {
+  background-color: #1e293b;
+}
+
+.sticky-table-wrapper tbody tr:nth-child(even) .sticky-first-col {
+  background-color: #f8fafc;
+}
+
+.dark .sticky-table-wrapper tbody tr:nth-child(even) .sticky-first-col {
+  background-color: #1e293b;
+}
+
+/* Hover effect on rows */
+.sticky-table-wrapper tbody tr:hover {
+  background-color: #eef2ff !important;
+}
+
+.dark .sticky-table-wrapper tbody tr:hover {
+  background-color: #172554 !important;
+}
+
+.sticky-table-wrapper tbody tr:hover .sticky-first-col {
+  background-color: #eef2ff !important;
+}
+
+.dark .sticky-table-wrapper tbody tr:hover .sticky-first-col {
+  background-color: #172554 !important;
+}
+
+/* Header row backgrounds */
+thead.sticky-header tr:nth-child(1) th {
+  background-color: #f8fafc;
+}
+
+.dark thead.sticky-header tr:nth-child(1) th {
+  background-color: #1e293b;
+}
+
+thead.sticky-header tr:nth-child(2) th {
+  background-color: #ffffff;
+}
+
+.dark thead.sticky-header tr:nth-child(2) th {
+  background-color: #0f172a;
+}
+
+/* Sticky first col min-width for readability */
+.sticky-first-col,
+.sticky-first-col-header {
+  min-width: 100px;
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── Option Chain Table Specifics ── */
+
+/* Sticky strike column in option chain */
+.sticky-strike-col {
+  position: sticky;
+  left: 0;
+  z-index: 10;
+  background-color: #ffffff;
+  border-right: 2px solid #f59e0b;
+  border-left: 2px solid #f59e0b;
+}
+
+.dark .sticky-strike-col {
+  background-color: #1e293b;
+}
+
+.sticky-strike-col-header {
   position: sticky;
   left: 0;
   z-index: 60;
-  box-shadow: 2px 0 4px -1px rgba(0, 0, 0, 0.15);
+  border-right: 2px solid #f59e0b;
+  border-left: 2px solid #f59e0b;
 }
 
-.dark .sticky-first-col,
-.dark th.sticky-first-col-header,
-.dark thead .sticky-first-col-header {
-  box-shadow: 2px 0 4px -1px rgba(0, 0, 0, 0.4);
+/* ATM row highlight */
+.sticky-table-wrapper tbody tr.atm-row {
+  background-color: #fefce8 !important;
+}
+
+.dark .sticky-table-wrapper tbody tr.atm-row {
+  background-color: #422006 !important;
+}
+
+.sticky-table-wrapper tbody tr.atm-row .sticky-first-col,
+.sticky-table-wrapper tbody tr.atm-row .sticky-strike-col {
+  background-color: #fefce8 !important;
+}
+
+.dark .sticky-table-wrapper tbody tr.atm-row .sticky-first-col,
+.dark .sticky-table-wrapper tbody tr.atm-row .sticky-strike-col {
+  background-color: #422006 !important;
+}
+
+/* ── Cell overflow protection ── */
+.sticky-table-wrapper td,
+.sticky-table-wrapper th {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Responsive adjustments ── */
+@media (max-width: 640px) {
+  .sticky-table-wrapper {
+    max-height: 55vh;
+  }
+
+  .sticky-first-col,
+  .sticky-first-col-header {
+    min-width: 70px;
+    max-width: 120px;
+  }
 }
