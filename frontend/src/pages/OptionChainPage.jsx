@@ -152,7 +152,7 @@ export default function OptionChainPage() {
   }, [spotPrice, tableData]);
 
   return (
-    <div className="w-full min-h-screen px-4 py-4 bg-slate-50 dark:bg-slate-900">
+    <div className="flex flex-col gap-4">
       {/* Header & Filters */}
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 p-5 mb-4">
         <div className="flex flex-col sm:flex-row sm:items-end gap-4">
