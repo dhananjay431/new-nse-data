@@ -5,37 +5,50 @@
 @layer base {
   body {
     @apply bg-slate-50 text-slate-800;
+    font-size: 13px;
   }
-  
+
+  @screen sm {
+    body {
+      font-size: 14px;
+    }
+  }
+
+  @screen lg {
+    body {
+      font-size: 16px;
+    }
+  }
+
   html.dark body {
     @apply bg-slate-900 text-slate-100;
   }
-  
+
   /* Ensure all elements inherit the correct background and text colors */
   .bg-white {
     @apply dark:bg-slate-800;
   }
-  
+
   .text-slate-700 {
     @apply dark:text-slate-200;
   }
-  
+
   .text-slate-600 {
     @apply dark:text-slate-300;
   }
-  
+
   .text-slate-500 {
     @apply dark:text-slate-400;
   }
-  
+
   .border-slate-200 {
     @apply dark:border-slate-700;
   }
-  
+
   .bg-slate-50 {
     @apply dark:bg-slate-700;
   }
-  
+
   .border-slate-300 {
     @apply dark:border-slate-600;
   }
@@ -62,4 +75,43 @@
 
 ::-webkit-scrollbar-thumb:hover {
   @apply bg-slate-400 dark:bg-slate-500;
+}
+
+/* ── Sticky first column classes for scrollable tables ── */
+.sticky-first-col {
+  position: sticky;
+  left: 0;
+  z-index: 50;
+  box-shadow: 2px 0 4px -1px rgba(0, 0, 0, 0.15);
+}
+
+.dark .sticky-first-col {
+  box-shadow: 2px 0 4px -1px rgba(0, 0, 0, 0.4);
+}
+
+/* Sticky header row: each th sticks to top; first th also sticks left */
+thead.sticky-header tr:nth-child(1) th {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+thead.sticky-header tr:nth-child(2) th {
+  position: sticky;
+  top: 2.25rem;
+  z-index: 20;
+}
+
+th.sticky-first-col-header,
+thead .sticky-first-col-header {
+  position: sticky;
+  left: 0;
+  z-index: 60;
+  box-shadow: 2px 0 4px -1px rgba(0, 0, 0, 0.15);
+}
+
+.dark .sticky-first-col,
+.dark th.sticky-first-col-header,
+.dark thead .sticky-first-col-header {
+  box-shadow: 2px 0 4px -1px rgba(0, 0, 0, 0.4);
 }

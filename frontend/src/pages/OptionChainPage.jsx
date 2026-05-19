@@ -152,14 +152,14 @@ export default function OptionChainPage() {
   }, [spotPrice, tableData]);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-2 sm:gap-4">
       {/* Header & Filters */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 p-5 mb-4">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 p-3 sm:p-5 mb-4">
         <div className="flex flex-col sm:flex-row sm:items-end gap-4">
           <div className="flex-1">
             <label
               htmlFor="symbol-select"
-              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+              className="block text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
             >
               Select Index
             </label>
@@ -167,7 +167,7 @@ export default function OptionChainPage() {
               id="symbol-select"
               value={selectedSymbol}
               onChange={(e) => setSelectedSymbol(e.target.value)}
-              className="w-full max-w-sm px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full max-w-sm px-2 sm:px-3 py-1.5 sm:py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             >
               {SYMBOLS.map((sym) => (
                 <option key={sym} value={sym}>
@@ -180,7 +180,7 @@ export default function OptionChainPage() {
           <div className="flex-1">
             <label
               htmlFor="expiry-select"
-              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+              className="block text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
             >
               Select Expiry
             </label>
@@ -188,7 +188,7 @@ export default function OptionChainPage() {
               id="expiry-select"
               value={selectedExpiry}
               onChange={(e) => setSelectedExpiry(e.target.value)}
-              className="w-full max-w-sm px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full max-w-sm px-2 sm:px-3 py-1.5 sm:py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             >
               {expiryDates.map((exp) => (
                 <option key={exp} value={exp}>
@@ -198,16 +198,16 @@ export default function OptionChainPage() {
             </select>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {spotPrice > 0 && (
-              <div className="px-4 py-2 bg-primary-50 dark:bg-primary-900/30 border border-primary-200 dark:border-primary-700 rounded-lg text-sm text-primary-800 dark:text-primary-300 font-medium">
+              <div className="px-2 sm:px-4 py-1.5 sm:py-2 bg-primary-50 dark:bg-primary-900/30 border border-primary-200 dark:border-primary-700 rounded-lg text-xs sm:text-sm text-primary-800 dark:text-primary-300 font-medium">
                 Spot: {spotPrice.toLocaleString()}
               </div>
             )}
             <button
               onClick={loadOptionChain}
               disabled={loading}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg text-sm font-medium hover:bg-primary-700 disabled:opacity-50 transition-colors"
+              className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 bg-primary-600 text-white rounded-lg text-xs sm:text-sm font-medium hover:bg-primary-700 disabled:opacity-50 transition-colors"
             >
               {loading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -221,7 +221,7 @@ export default function OptionChainPage() {
       </div>
 
       {error && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 px-4 py-3 text-sm text-red-700 dark:text-red-400">
+        <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-red-700 dark:text-red-400">
           <AlertCircle className="w-4 h-4" />
           {error}
         </div>
@@ -229,7 +229,7 @@ export default function OptionChainPage() {
 
       {/* Summary Cards */}
       {summary && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 lg:gap-4 mb-3 sm:mb-6">
           <SummaryCard
             icon={<DollarSign className="w-5 h-5 text-primary-600" />}
             label="PCR"
@@ -291,57 +291,57 @@ export default function OptionChainPage() {
               ) : tableData.length > 0 ? (
                 <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 overflow-hidden">
                   <div className="overflow-auto max-h-[70vh]">
-                    <table className="min-w-full text-sm text-left">
+                    <table className="min-w-full text-xs sm:text-sm text-left">
                       <thead className="bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-300 sticky top-0 z-10">
                         <tr>
                           <th
                             colSpan={5}
-                            className="px-3 py-2 font-bold text-center border-b border-slate-200 dark:border-slate-600 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400"
+                            className="px-2 sm:px-3 py-1.5 sm:py-2 font-bold text-center border-b border-slate-200 dark:border-slate-600 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400 text-[10px] sm:text-xs"
                           >
                             CALLS
                           </th>
-                          <th className="px-3 py-2 font-bold text-center border-b border-slate-200 dark:border-slate-600 bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400">
+                          <th className="px-2 sm:px-3 py-1.5 sm:py-2 font-bold text-center border-b border-slate-200 dark:border-slate-600 bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400 text-[10px] sm:text-xs">
                             Strike
                           </th>
                           <th
                             colSpan={5}
-                            className="px-3 py-2 font-bold text-center border-b border-slate-200 dark:border-slate-600 bg-rose-50 dark:bg-rose-900/30 text-rose-800 dark:text-rose-400"
+                            className="px-2 sm:px-3 py-1.5 sm:py-2 font-bold text-center border-b border-slate-200 dark:border-slate-600 bg-rose-50 dark:bg-rose-900/30 text-rose-800 dark:text-rose-400 text-[10px] sm:text-xs"
                           >
                             PUTS
                           </th>
                         </tr>
                         <tr>
-                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
+                          <th className="px-2 sm:px-3 py-1.5 sm:py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-[10px] sm:text-xs">
                             OI
                           </th>
-                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
+                          <th className="px-2 sm:px-3 py-1.5 sm:py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-[10px] sm:text-xs">
                             Chg OI
                           </th>
-                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
+                          <th className="px-2 sm:px-3 py-1.5 sm:py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-[10px] sm:text-xs">
                             Volume
                           </th>
-                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
+                          <th className="px-2 sm:px-3 py-1.5 sm:py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-[10px] sm:text-xs">
                             IV
                           </th>
-                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
+                          <th className="px-2 sm:px-3 py-1.5 sm:py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-[10px] sm:text-xs">
                             LTP
                           </th>
-                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-center">
+                          <th className="px-2 sm:px-3 py-1.5 sm:py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-center text-[10px] sm:text-xs">
                             Strike
                           </th>
-                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
+                          <th className="px-2 sm:px-3 py-1.5 sm:py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-[10px] sm:text-xs">
                             LTP
                           </th>
-                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
+                          <th className="px-2 sm:px-3 py-1.5 sm:py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-[10px] sm:text-xs">
                             IV
                           </th>
-                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
+                          <th className="px-2 sm:px-3 py-1.5 sm:py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-[10px] sm:text-xs">
                             Volume
                           </th>
-                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
+                          <th className="px-2 sm:px-3 py-1.5 sm:py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-[10px] sm:text-xs">
                             Chg OI
                           </th>
-                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
+                          <th className="px-2 sm:px-3 py-1.5 sm:py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-[10px] sm:text-xs">
                             OI
                           </th>
                         </tr>
@@ -358,23 +358,23 @@ export default function OptionChainPage() {
                                   : "hover:bg-slate-50 dark:hover:bg-slate-700/50"
                               }`}
                             >
-                              <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                              <td className="px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
                                 {row.callOI.toLocaleString()}
                               </td>
-                              <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                              <td className="px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
                                 {row.callChangeOI.toLocaleString()}
                               </td>
-                              <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                              <td className="px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
                                 {row.callVolume.toLocaleString()}
                               </td>
-                              <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                              <td className="px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
                                 {row.callIV}
                               </td>
-                              <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                              <td className="px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
                                 {row.callLTP}
                               </td>
                               <td
-                                className={`px-3 py-2 whitespace-nowrap font-bold text-center ${
+                                className={`px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap font-bold text-center ${
                                   isATM
                                     ? "text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30"
                                     : "text-slate-800 dark:text-slate-200"
@@ -382,19 +382,19 @@ export default function OptionChainPage() {
                               >
                                 {row.strikePrice}
                               </td>
-                              <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                              <td className="px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
                                 {row.putLTP}
                               </td>
-                              <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                              <td className="px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
                                 {row.putIV}
                               </td>
-                              <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                              <td className="px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
                                 {row.putVolume.toLocaleString()}
                               </td>
-                              <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                              <td className="px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
                                 {row.putChangeOI.toLocaleString()}
                               </td>
-                              <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                              <td className="px-2 sm:px-3 py-1.5 sm:py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
                                 {row.putOI.toLocaleString()}
                               </td>
                             </tr>
@@ -416,7 +416,7 @@ export default function OptionChainPage() {
             icon: BarChart3,
             content:
               chartData.length > 0 ? (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-2 sm:gap-4">
                   <ChartCard title="Open Interest by Strike">
                     <ResponsiveContainer width="100%" height={280}>
                       <BarChart data={chartData}>
@@ -509,18 +509,18 @@ export default function OptionChainPage() {
 
 function SummaryCard({ icon, label, value, sub }) {
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 p-4">
-      <div className="flex items-center gap-2 mb-2">
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 p-2 sm:p-4">
+      <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
         {icon}
-        <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+        <span className="text-[10px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
           {label}
         </span>
       </div>
-      <div className="text-xl font-bold text-slate-800 dark:text-slate-200">
+      <div className="text-sm sm:text-lg lg:text-xl font-bold text-slate-800 dark:text-slate-200">
         {value}
       </div>
       {sub && (
-        <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+        <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 sm:mt-1">
           {sub}
         </div>
       )}
@@ -530,8 +530,8 @@ function SummaryCard({ icon, label, value, sub }) {
 
 function ChartCard({ title, children }) {
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 p-4">
-      <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 p-2 sm:p-4">
+      <h3 className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mb-2 sm:mb-3">
         {title}
       </h3>
       {children}

@@ -229,21 +229,23 @@ export default function IndexTablePage() {
   }) {
     return (
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 overflow-hidden">
-        <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2 bg-slate-50 dark:bg-slate-700">
+        <div className="px-2 sm:px-4 py-1.5 sm:py-2 border-b border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2 bg-slate-50 dark:bg-slate-700">
           <span className="font-medium">{rows.length}</span> rows
         </div>
         <div className="overflow-auto max-h-[65vh]">
-          <table className="min-w-full text-sm text-left">
-            <thead className="bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200 sticky top-0">
+          <table className="min-w-full text-xs sm:text-sm text-left">
+            <thead className="sticky-header bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
               <tr>
-                {cols.map((col) => (
-                  <th
-                    key={col}
-                    className="px-4 py-3 font-semibold border-b border-slate-200 dark:border-slate-700 cursor-pointer select-none whitespace-nowrap"
-                    onClick={() => onSort(col)}
-                  >
+              {cols.map((col, colIdx) => (
+                <th
+                  key={col}
+                  className={`px-2 sm:px-4 py-2 sm:py-3 font-semibold border-b border-slate-200 dark:border-slate-700 cursor-pointer select-none whitespace-nowrap ${
+                    colIdx === 0 ? "sticky-first-col-header bg-slate-50 dark:bg-slate-700" : ""
+                  }`}
+                  onClick={() => onSort(col)}
+                >
                     <div className="flex items-center gap-1">
-                      <span className="uppercase tracking-wide text-xs">
+                      <span className="uppercase tracking-wide text-[10px] sm:text-xs">
                         {col.replace(/([A-Z])/g, " $1").trim()}
                       </span>
                       {sortState.key === col &&
@@ -257,18 +259,20 @@ export default function IndexTablePage() {
                 ))}
               </tr>
               <tr className="bg-white dark:bg-slate-800">
-                {cols.map((col) => (
-                  <th
-                    key={col}
-                    className="px-4 py-2 border-b border-slate-200 dark:border-slate-700"
-                  >
+              {cols.map((col, colIdx) => (
+                <th
+                  key={col}
+                  className={`px-2 sm:px-4 py-1.5 sm:py-2 border-b border-slate-200 dark:border-slate-700 ${
+                    colIdx === 0 ? "sticky-first-col-header bg-white dark:bg-slate-800" : ""
+                  }`}
+                >
                     <div className="flex items-center gap-1">
                       <select
                         value={filtersState[col]?.operator || "="}
                         onChange={(e) =>
                           onFilterChange(col, "operator", e.target.value)
                         }
-                        className="px-1 py-1 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 dark:text-slate-200"
+                        className="px-1 py-0.5 sm:py-1 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-[10px] sm:text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 dark:text-slate-200"
                       >
                         {OPERATORS.map((op) => (
                           <option key={op} value={op}>
@@ -283,7 +287,7 @@ export default function IndexTablePage() {
                         onChange={(e) =>
                           onFilterChange(col, "value", e.target.value)
                         }
-                        className="w-20 px-2 py-1 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 dark:text-slate-200"
+                        className="w-16 sm:w-20 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-[10px] sm:text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 dark:text-slate-200"
                       />
                     </div>
                   </th>
@@ -295,7 +299,7 @@ export default function IndexTablePage() {
                 <tr>
                   <td
                     colSpan={cols.length}
-                    className="px-4 py-8 text-center text-slate-500 dark:text-slate-400"
+                    className="px-2 sm:px-4 py-6 sm:py-8 text-center text-slate-500 dark:text-slate-400"
                   >
                     No data available.
                   </td>
@@ -309,10 +313,12 @@ export default function IndexTablePage() {
                       key={idx}
                       className={`${rowBg} hover:brightness-95 dark:hover:brightness-110 transition-colors`}
                     >
-                      {cols.map((col) => (
+                      {cols.map((col, colIdx) => (
                         <td
                           key={col}
-                          className={`px-4 py-2 whitespace-nowrap ${
+                          className={`px-2 sm:px-4 py-1.5 sm:py-2 whitespace-nowrap ${
+                            colIdx === 0 ? "sticky-first-col bg-white dark:bg-slate-800" : ""
+                          } ${
                             pChangeFields.includes(col)
                               ? row[col] > 0
                                 ? "text-emerald-600 dark:text-emerald-400 font-medium"
@@ -353,9 +359,9 @@ export default function IndexTablePage() {
   }
 
   return (
-    <div className="w-full min-h-screen px-4 py-4 bg-slate-50 dark:bg-slate-900">
+    <div className="w-full min-h-screen bg-slate-50 dark:bg-slate-900">
       {error && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 px-4 py-3 text-sm text-red-700 dark:text-red-400 flex-shrink-0">
+        <div className="mb-4 flex items-center gap-2 rounded-lg border border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-900/30 px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-red-700 dark:text-red-400 flex-shrink-0">
           <AlertCircle className="w-4 h-4" />
           {error}
         </div>
@@ -372,11 +378,11 @@ export default function IndexTablePage() {
             content: (
               <div className="flex flex-col gap-3">
                 {/* Index Selector & Meta */}
-                <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 p-4 flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
                   <div className="flex-1">
                     <label
                       htmlFor="index-select"
-                      className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
+                      className="block text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300 mb-1"
                     >
                       Select Index
                     </label>
@@ -384,7 +390,7 @@ export default function IndexTablePage() {
                       id="index-select"
                       value={selectedIndex}
                       onChange={(e) => setSelectedIndex(e.target.value)}
-                      className="w-full max-w-sm px-3 py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                      className="w-full max-w-sm px-2 sm:px-3 py-1.5 sm:py-2 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                     >
                       {indices.map((idx, i) => (
                         <option
@@ -397,7 +403,7 @@ export default function IndexTablePage() {
                     </select>
                   </div>
                   {indexMeta && (
-                    <div className="px-4 py-2 bg-primary-50 dark:bg-primary-900/30 border border-primary-200 dark:border-primary-700 rounded-lg text-sm">
+                    <div className="px-2 sm:px-4 py-1.5 sm:py-2 bg-primary-50 dark:bg-primary-900/30 border border-primary-200 dark:border-primary-700 rounded-lg text-xs sm:text-sm">
                       <span className="text-primary-800 dark:text-primary-300 font-medium">
                         {indexMeta.last?.toLocaleString()}
                       </span>
@@ -410,7 +416,7 @@ export default function IndexTablePage() {
                       </span>
                     </div>
                   )}
-                  <div className="flex items-center gap-2 text-sm text-slate-600 dark:text-slate-400">
+                  <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-600 dark:text-slate-400">
                     <Filter className="w-4 h-4" />
                     <span>{filteredRows.length} rows</span>
                   </div>
@@ -418,7 +424,7 @@ export default function IndexTablePage() {
 
                 {/* Summary Cards */}
                 {summary && (
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2 sm:gap-3 lg:gap-4">
                     <SummaryCard
                       icon={<TrendingUp className="w-5 h-5 text-emerald-600" />}
                       label="Gainers"
@@ -502,18 +508,18 @@ export default function IndexTablePage() {
 
 function SummaryCard({ icon, label, value, sub }) {
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 p-4">
-      <div className="flex items-center gap-2 mb-2">
+    <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 p-2 sm:p-4">
+      <div className="flex items-center gap-1.5 sm:gap-2 mb-1.5 sm:mb-2">
         {icon}
-        <span className="text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+        <span className="text-[10px] sm:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase tracking-wide">
           {label}
         </span>
       </div>
-      <div className="text-xl font-bold text-slate-800 dark:text-slate-200">
+      <div className="text-sm sm:text-lg lg:text-xl font-bold text-slate-800 dark:text-slate-200">
         {value}
       </div>
       {sub && (
-        <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+        <div className="text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 mt-0.5 sm:mt-1">
           {sub}
         </div>
       )}

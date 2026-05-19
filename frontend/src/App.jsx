@@ -22,7 +22,7 @@ function App() {
               <ProtectedRoute>
                 <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900">
                   <Navbar />
-                  <main className="flex-1">
+                  <main className="flex-1 px-2 sm:px-4 lg:px-6 py-2 sm:py-4">
                     <IndexTablePage />
                   </main>
                 </div>
@@ -35,7 +35,7 @@ function App() {
               <ProtectedRoute>
                 <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900">
                   <Navbar />
-                  <main className="flex-1">
+                  <main className="flex-1 px-2 sm:px-4 lg:px-6 py-2 sm:py-4">
                     <ETFPage />
                   </main>
                 </div>
@@ -48,7 +48,7 @@ function App() {
               <ProtectedRoute>
                 <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900">
                   <Navbar />
-                  <main className="flex-1">
+                  <main className="flex-1 px-2 sm:px-4 lg:px-6 py-2 sm:py-4">
                     <OptionChainPage />
                   </main>
                 </div>

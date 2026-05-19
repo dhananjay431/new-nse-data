@@ -180,21 +180,23 @@ export default function AllIndicesPage() {
   function renderSortableTable() {
     return (
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 overflow-hidden">
-        <div className="px-4 py-2 border-b border-slate-200 dark:border-slate-700 text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2 bg-slate-50 dark:bg-slate-700">
+        <div className="px-2 sm:px-4 py-1.5 sm:py-2 border-b border-slate-200 dark:border-slate-700 text-xs sm:text-sm text-slate-600 dark:text-slate-300 flex items-center gap-2 bg-slate-50 dark:bg-slate-700">
           <span className="font-medium">{sortedRows.length}</span> rows
         </div>
         <div className="overflow-auto max-h-[65vh]">
-          <table className="min-w-full text-sm text-left">
-            <thead className="bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200 sticky top-0">
+          <table className="min-w-full text-xs sm:text-sm text-left">
+            <thead className="sticky-header bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200">
               <tr>
-                {visibleColumns.map((col) => (
-                  <th
-                    key={col}
-                    className="px-4 py-3 font-semibold border-b border-slate-200 dark:border-slate-700 cursor-pointer select-none whitespace-nowrap"
-                    onClick={() => handleSort(col)}
-                  >
+              {visibleColumns.map((col, colIdx) => (
+                <th
+                  key={col}
+                  className={`px-2 sm:px-4 py-2 sm:py-3 font-semibold border-b border-slate-200 dark:border-slate-700 cursor-pointer select-none whitespace-nowrap ${
+                    colIdx === 0 ? "sticky-first-col-header bg-slate-50 dark:bg-slate-700" : ""
+                  }`}
+                  onClick={() => handleSort(col)}
+                >
                     <div className="flex items-center gap-1">
-                      <span className="uppercase tracking-wide text-xs">
+                      <span className="uppercase tracking-wide text-[10px] sm:text-xs">
                         {col.replace(/([A-Z])/g, " $1").trim()}
                       </span>
                       {sort.key === col &&
@@ -208,18 +210,20 @@ export default function AllIndicesPage() {
                 ))}
               </tr>
               <tr className="bg-white dark:bg-slate-800">
-                {visibleColumns.map((col) => (
-                  <th
-                    key={col}
-                    className="px-4 py-2 border-b border-slate-200 dark:border-slate-700"
-                  >
+              {visibleColumns.map((col, colIdx) => (
+                <th
+                  key={col}
+                  className={`px-2 sm:px-4 py-1.5 sm:py-2 border-b border-slate-200 dark:border-slate-700 ${
+                    colIdx === 0 ? "sticky-first-col-header bg-white dark:bg-slate-800" : ""
+                  }`}
+                >
                     <div className="flex items-center gap-1">
                       <select
                         value={filters[col]?.operator || "="}
                         onChange={(e) =>
                           handleFilterChange(col, "operator", e.target.value)
                         }
-                        className="px-1 py-1 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 dark:text-slate-200"
+                        className="px-1 py-0.5 sm:py-1 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-[10px] sm:text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 dark:text-slate-200"
                       >
                         {OPERATORS.map((op) => (
                           <option key={op} value={op}>
@@ -234,7 +238,7 @@ export default function AllIndicesPage() {
                         onChange={(e) =>
                           handleFilterChange(col, "value", e.target.value)
                         }
-                        className="w-20 px-2 py-1 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 dark:text-slate-200"
+                        className="w-16 sm:w-20 px-1.5 sm:px-2 py-0.5 sm:py-1 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-[10px] sm:text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 dark:text-slate-200"
                       />
                     </div>
                   </th>
@@ -246,7 +250,7 @@ export default function AllIndicesPage() {
                 <tr>
                   <td
                     colSpan={visibleColumns.length}
-                    className="px-4 py-8 text-center text-slate-500 dark:text-slate-400"
+                    className="px-2 sm:px-4 py-6 sm:py-8 text-center text-slate-500 dark:text-slate-400"
                   >
                     No data available.
                   </td>
@@ -265,10 +269,12 @@ export default function AllIndicesPage() {
                       key={idx}
                       className={`${rowBg} hover:brightness-95 dark:hover:brightness-110 transition-colors`}
                     >
-                      {visibleColumns.map((col) => (
+                       {visibleColumns.map((col, colIdx) => (
                         <td
                           key={col}
-                          className={`px-4 py-2 whitespace-nowrap ${
+                          className={`px-2 sm:px-4 py-1.5 sm:py-2 whitespace-nowrap ${
+                            colIdx === 0 ? "sticky-first-col bg-white dark:bg-slate-800" : ""
+                          } ${
                             pChangeFields.includes(col)
                               ? row[col] > 0
                                 ? "text-emerald-600 dark:text-emerald-400 font-medium"
@@ -324,7 +330,7 @@ export default function AllIndicesPage() {
     return (
       <div className="flex flex-col gap-4">
         {/* Legend */}
-        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+        <div className="flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 flex-wrap">
           <span className="font-medium">pChange:</span>
           <span className="px-2 py-0.5 rounded bg-rose-600 text-white">
             ≤ -3%
@@ -364,23 +370,23 @@ export default function AllIndicesPage() {
                 href={`https://www.tradingview.com/chart/?symbol=NSE:${name}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className={`${bg} ${text} rounded-lg px-3 py-2 hover:opacity-80 transition-opacity cursor-pointer flex flex-col items-center min-w-[90px]`}
+                className={`${bg} ${text} rounded-lg px-2 sm:px-3 py-1.5 sm:py-2 hover:opacity-80 transition-opacity cursor-pointer flex flex-col items-center min-w-[70px] sm:min-w-[90px]`}
                 title={`${name}: ${p >= 0 ? "+" : ""}${p.toFixed(2)}%`}
               >
-                <span className="font-semibold text-xs leading-tight text-center">
+                <span className="font-semibold text-[10px] sm:text-xs leading-tight text-center">
                   {name}
                 </span>
                 {last != null && (
-                  <span className="text-[10px] leading-tight">
+                  <span className="text-[9px] sm:text-[10px] leading-tight">
                     {typeof last === "number" ? last.toLocaleString() : last}
                   </span>
                 )}
-                <span className="text-xs font-medium leading-tight">
+                <span className="text-[10px] sm:text-xs font-medium leading-tight">
                   {p >= 0 ? "+" : ""}
                   {p.toFixed(2)}%
                 </span>
                 {change != null && (
-                  <span className="text-[10px] leading-tight">
+                  <span className="text-[9px] sm:text-[10px] leading-tight">
                     {change >= 0 ? "+" : ""}
                     {typeof change === "number" ? change.toFixed(2) : change}
                   </span>
@@ -394,31 +400,31 @@ export default function AllIndicesPage() {
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-2 sm:gap-3">
       {/* Controls Bar */}
-      <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 p-4 flex flex-wrap items-center gap-3">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 p-2 sm:p-4 flex flex-wrap items-center gap-2 sm:gap-3">
         {/* View Toggle */}
         <div className="flex items-center bg-slate-100 dark:bg-slate-700 rounded-lg p-0.5">
           <button
             onClick={() => setViewMode("table")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+            className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
               viewMode === "table"
                 ? "bg-white dark:bg-slate-600 text-primary-600 dark:text-primary-400 shadow-sm"
                 : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
             }`}
           >
-            <Table2 className="w-3.5 h-3.5" />
+            <Table2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             Table
           </button>
           <button
             onClick={() => setViewMode("heatmap")}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+            className={`flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-[10px] sm:text-xs font-medium transition-colors ${
               viewMode === "heatmap"
                 ? "bg-white dark:bg-slate-600 text-primary-600 dark:text-primary-400 shadow-sm"
                 : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
             }`}
           >
-            <LayoutGrid className="w-3.5 h-3.5" />
+            <LayoutGrid className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             Heatmap
           </button>
         </div>
@@ -429,7 +435,7 @@ export default function AllIndicesPage() {
         {/* Group By */}
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-slate-500 dark:text-slate-400" />
-          <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          <span className="text-xs sm:text-sm font-medium text-slate-700 dark:text-slate-300">
             Group By
           </span>
         </div>
@@ -439,7 +445,7 @@ export default function AllIndicesPage() {
             setGroupBy(e.target.value);
             setGroupValue("");
           }}
-          className="px-3 py-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
+          className="px-2 sm:px-3 py-1 sm:py-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500"
         >
           <option value="">-- None --</option>
           {columns.map((col) => (
@@ -450,13 +456,13 @@ export default function AllIndicesPage() {
         </select>
         {groupBy && (
           <>
-            <span className="text-sm text-slate-500 dark:text-slate-400">
+            <span className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
               =
             </span>
             <select
               value={groupValue}
               onChange={(e) => setGroupValue(e.target.value)}
-              className="px-3 py-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500 max-w-xs"
+              className="px-2 sm:px-3 py-1 sm:py-1.5 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded-lg text-xs sm:text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-primary-500 max-w-xs"
             >
               <option value="">-- All --</option>
               {groupValues.map((v) => (
@@ -470,7 +476,7 @@ export default function AllIndicesPage() {
                 setGroupBy("");
                 setGroupValue("");
               }}
-              className="px-2 py-1 text-xs text-slate-500 dark:text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 transition-colors"
+              className="px-1.5 sm:px-2 py-0.5 sm:py-1 text-[10px] sm:text-xs text-slate-500 dark:text-slate-400 hover:text-rose-500 dark:hover:text-rose-400 transition-colors"
               title="Clear group by"
             >
               ✕ Clear
@@ -480,7 +486,7 @@ export default function AllIndicesPage() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 rounded-lg border border-red-200 dark:border-red-500 bg-red-50 dark:bg-red-900/20 px-4 py-3 text-sm text-red-700 dark:text-red-300">
+        <div className="flex items-center gap-2 rounded-lg border border-red-200 dark:border-red-500 bg-red-50 dark:bg-red-900/20 px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm text-red-700 dark:text-red-300">
           {error}
         </div>
       )}
