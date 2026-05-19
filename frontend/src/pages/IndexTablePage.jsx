@@ -82,6 +82,36 @@ function fmt(val) {
   return String(val);
 }
 
+function getRowBg(change) {
+  if (change >= 50) return "bg-emerald-100 dark:bg-emerald-900/30";
+  if (change >= 20) return "bg-emerald-50 dark:bg-emerald-900/20";
+  if (change >= 10) return "bg-emerald-50/60 dark:bg-emerald-900/10";
+  if (change > 0) return "bg-emerald-50/30 dark:bg-emerald-900/5";
+  if (change === 0) return "";
+  if (change >= -10) return "bg-rose-50/30 dark:bg-rose-900/5";
+  if (change >= -20) return "bg-rose-50/60 dark:bg-rose-900/10";
+  if (change >= -50) return "bg-rose-50 dark:bg-rose-900/20";
+  return "bg-rose-100 dark:bg-rose-900/30";
+}
+
+function getHeatColorChange(change) {
+  if (change >= 50) return { bg: "bg-emerald-600", text: "text-white" };
+  if (change >= 20) return { bg: "bg-emerald-500", text: "text-white" };
+  if (change >= 10) return { bg: "bg-emerald-400", text: "text-white" };
+  if (change >= 5) return { bg: "bg-emerald-300", text: "text-emerald-900" };
+  if (change > 0) return { bg: "bg-emerald-200", text: "text-emerald-800" };
+  if (change === 0)
+    return {
+      bg: "bg-slate-200 dark:bg-slate-600",
+      text: "text-slate-600 dark:text-slate-300",
+    };
+  if (change >= -5) return { bg: "bg-rose-200", text: "text-rose-800" };
+  if (change >= -10) return { bg: "bg-rose-300", text: "text-rose-900" };
+  if (change >= -20) return { bg: "bg-rose-400", text: "text-white" };
+  if (change >= -50) return { bg: "bg-rose-500", text: "text-white" };
+  return { bg: "bg-rose-600", text: "text-white" };
+}
+
 export default function IndexTablePage() {
   const [indices, setIndices] = useState([]);
   const [selectedIndex, setSelectedIndex] = useState("NIFTY 50");
@@ -290,44 +320,49 @@ export default function IndexTablePage() {
                   </td>
                 </tr>
               ) : (
-                rows.map((row, idx) => (
-                  <tr
-                    key={idx}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
-                  >
-                    {cols.map((col) => (
-                      <td
-                        key={col}
-                        className={`px-4 py-2 whitespace-nowrap ${
-                          pChangeFields.includes(col)
-                            ? row[col] > 0
-                              ? "text-emerald-600 dark:text-emerald-400 font-medium"
-                              : row[col] < 0
-                                ? "text-rose-600 dark:text-rose-400 font-medium"
+                rows.map((row, idx) => {
+                  const changeVal = Number(row.change || 0);
+                  const rowBg = getRowBg(changeVal);
+                  return (
+                    <tr
+                      key={idx}
+                      className={`${rowBg} hover:brightness-95 dark:hover:brightness-110 transition-colors`}
+                    >
+                      {cols.map((col) => (
+                        <td
+                          key={col}
+                          className={`px-4 py-2 whitespace-nowrap ${
+                            pChangeFields.includes(col)
+                              ? row[col] > 0
+                                ? "text-emerald-600 dark:text-emerald-400 font-medium"
+                                : row[col] < 0
+                                  ? "text-rose-600 dark:text-rose-400 font-medium"
+                                  : "text-slate-700 dark:text-slate-300"
+                              : col === "industry"
+                                ? "text-slate-500 dark:text-slate-400"
                                 : "text-slate-700 dark:text-slate-300"
-                            : col === "industry"
-                              ? "text-slate-500 dark:text-slate-400"
-                              : "text-slate-700 dark:text-slate-300"
-                        }`}
-                      >
-                        {col === "symbol" ? (
-                          <a
-                            href={`https://www.tradingview.com/chart/?symbol=NSE:${row[col]}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-primary-600 dark:text-primary-400 hover:underline font-medium"
-                          >
-                            {fmt(row[col])}
-                          </a>
-                        ) : pChangeFields.includes(col) && row[col] != null ? (
-                          `${Number(row[col]).toFixed(2)}%`
-                        ) : (
-                          fmt(row[col])
-                        )}
-                      </td>
-                    ))}
-                  </tr>
-                ))
+                          }`}
+                        >
+                          {col === "symbol" ? (
+                            <a
+                              href={`https://www.tradingview.com/chart/?symbol=NSE:${row[col]}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-primary-600 dark:text-primary-400 hover:underline font-medium"
+                            >
+                              {fmt(row[col])}
+                            </a>
+                          ) : pChangeFields.includes(col) &&
+                            row[col] != null ? (
+                            `${Number(row[col]).toFixed(2)}%`
+                          ) : (
+                            fmt(row[col])
+                          )}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
@@ -478,28 +513,40 @@ export default function IndexTablePage() {
             ) : (
               <div className="flex flex-col gap-4">
                 {/* Legend */}
-                <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-                  <span className="font-medium">pChange:</span>
+                <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                  <span className="font-medium">Change:</span>
                   <span className="px-2 py-0.5 rounded bg-rose-600 text-white">
-                    ≤ -3%
+                    ≤ -50
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-rose-500 text-white">
+                    -50 to -20
                   </span>
                   <span className="px-2 py-0.5 rounded bg-rose-400 text-white">
-                    -3% to -1%
+                    -20 to -10
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-rose-300 text-rose-900">
+                    -10 to -5
                   </span>
                   <span className="px-2 py-0.5 rounded bg-rose-200 text-rose-800">
-                    -1% to 0%
+                    -5 to 0
                   </span>
                   <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-600 dark:bg-slate-600 dark:text-slate-300">
-                    0%
+                    0
                   </span>
                   <span className="px-2 py-0.5 rounded bg-emerald-200 text-emerald-800">
-                    0% to 1%
+                    0 to 5
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-emerald-300 text-emerald-900">
+                    5 to 10
                   </span>
                   <span className="px-2 py-0.5 rounded bg-emerald-400 text-white">
-                    1% to 3%
+                    10 to 20
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-emerald-500 text-white">
+                    20 to 50
                   </span>
                   <span className="px-2 py-0.5 rounded bg-emerald-600 text-white">
-                    ≥ 3%
+                    ≥ 50
                   </span>
                 </div>
                 {/* Heatmap by Industry */}
@@ -528,32 +575,10 @@ export default function IndexTablePage() {
                       </div>
                       <div className="flex flex-wrap gap-1.5">
                         {stocks
-                          .sort((a, b) => (b.pChange || 0) - (a.pChange || 0))
+                          .sort((a, b) => (b.change || 0) - (a.change || 0))
                           .map((stock) => {
-                            const p = stock.pChange || 0;
-                            let bg, text;
-                            if (p >= 3) {
-                              bg = "bg-emerald-600";
-                              text = "text-white";
-                            } else if (p >= 1) {
-                              bg = "bg-emerald-400";
-                              text = "text-white";
-                            } else if (p > 0) {
-                              bg = "bg-emerald-200";
-                              text = "text-emerald-800";
-                            } else if (p === 0) {
-                              bg = "bg-slate-200 dark:bg-slate-600";
-                              text = "text-slate-600 dark:text-slate-300";
-                            } else if (p >= -1) {
-                              bg = "bg-rose-200";
-                              text = "text-rose-800";
-                            } else if (p >= -3) {
-                              bg = "bg-rose-400";
-                              text = "text-white";
-                            } else {
-                              bg = "bg-rose-600";
-                              text = "text-white";
-                            }
+                            const c = stock.change || 0;
+                            const { bg, text } = getHeatColorChange(c);
                             return (
                               <a
                                 key={stock.symbol}
@@ -561,14 +586,14 @@ export default function IndexTablePage() {
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className={`${bg} ${text} px-2 py-1.5 rounded text-xs font-medium hover:opacity-80 transition-opacity cursor-pointer flex flex-col items-center min-w-[70px]`}
-                                title={`${stock.companyName || stock.symbol}: ${p.toFixed(2)}%`}
+                                title={`${stock.companyName || stock.symbol}: ${c >= 0 ? "+" : ""}${c.toFixed(2)}`}
                               >
                                 <span className="font-semibold leading-tight">
                                   {stock.symbol}
                                 </span>
                                 <span className="text-[10px] leading-tight">
-                                  {p >= 0 ? "+" : ""}
-                                  {p.toFixed(2)}%
+                                  {c >= 0 ? "+" : ""}
+                                  {c.toFixed(2)}
                                 </span>
                               </a>
                             );
