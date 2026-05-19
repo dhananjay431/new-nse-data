@@ -3,6 +3,7 @@ import {
   fetchOptionChainContractInfo,
   fetchOptionChainData,
 } from "../api/client";
+import Tabs from "../components/Tabs";
 import {
   Loader2,
   AlertCircle,
@@ -12,6 +13,7 @@ import {
   BarChart3,
   Activity,
   DollarSign,
+  Table2,
 } from "lucide-react";
 import {
   BarChart,
@@ -270,198 +272,237 @@ export default function OptionChainPage() {
         </div>
       )}
 
-      {/* Charts */}
-      {chartData.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-          <ChartCard title="Open Interest by Strike">
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="strikePrice" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="callOI" fill="#10b981" name="Call OI" />
-                <Bar dataKey="putOI" fill="#f43f5e" name="Put OI" />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
+      {/* Tabs: Table & Charts */}
+      <Tabs
+        defaultTab="table"
+        tabs={[
+          {
+            id: "table",
+            label: "Option Chain",
+            icon: Table2,
+            content:
+              loading && !tableData.length ? (
+                <div className="flex items-center justify-center h-64">
+                  <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+                  <span className="ml-2 text-slate-600 dark:text-slate-400">
+                    Loading…
+                  </span>
+                </div>
+              ) : tableData.length > 0 ? (
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 overflow-hidden">
+                  <div className="overflow-auto max-h-[70vh]">
+                    <table className="min-w-full text-sm text-left">
+                      <thead className="bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-300 sticky top-0 z-10">
+                        <tr>
+                          <th
+                            colSpan={5}
+                            className="px-3 py-2 font-bold text-center border-b border-slate-200 dark:border-slate-600 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400"
+                          >
+                            CALLS
+                          </th>
+                          <th className="px-3 py-2 font-bold text-center border-b border-slate-200 dark:border-slate-600 bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400">
+                            Strike
+                          </th>
+                          <th
+                            colSpan={5}
+                            className="px-3 py-2 font-bold text-center border-b border-slate-200 dark:border-slate-600 bg-rose-50 dark:bg-rose-900/30 text-rose-800 dark:text-rose-400"
+                          >
+                            PUTS
+                          </th>
+                        </tr>
+                        <tr>
+                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
+                            OI
+                          </th>
+                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
+                            Chg OI
+                          </th>
+                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
+                            Volume
+                          </th>
+                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
+                            IV
+                          </th>
+                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
+                            LTP
+                          </th>
+                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-center">
+                            Strike
+                          </th>
+                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
+                            LTP
+                          </th>
+                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
+                            IV
+                          </th>
+                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
+                            Volume
+                          </th>
+                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
+                            Chg OI
+                          </th>
+                          <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
+                            OI
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                        {tableData.map((row, idx) => {
+                          const isATM = row.strikePrice === atmStrike;
+                          return (
+                            <tr
+                              key={idx}
+                              className={`transition-colors ${
+                                isATM
+                                  ? "bg-yellow-50 dark:bg-yellow-900/20"
+                                  : "hover:bg-slate-50 dark:hover:bg-slate-700/50"
+                              }`}
+                            >
+                              <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                                {row.callOI.toLocaleString()}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                                {row.callChangeOI.toLocaleString()}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                                {row.callVolume.toLocaleString()}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                                {row.callIV}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                                {row.callLTP}
+                              </td>
+                              <td
+                                className={`px-3 py-2 whitespace-nowrap font-bold text-center ${
+                                  isATM
+                                    ? "text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30"
+                                    : "text-slate-800 dark:text-slate-200"
+                                }`}
+                              >
+                                {row.strikePrice}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                                {row.putLTP}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                                {row.putIV}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                                {row.putVolume.toLocaleString()}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                                {row.putChangeOI.toLocaleString()}
+                              </td>
+                              <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
+                                {row.putOI.toLocaleString()}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-64 text-slate-500 dark:text-slate-400">
+                  No data available. Select an index and expiry.
+                </div>
+              ),
+          },
+          {
+            id: "charts",
+            label: "Charts & Analysis",
+            icon: BarChart3,
+            content:
+              chartData.length > 0 ? (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <ChartCard title="Open Interest by Strike">
+                    <ResponsiveContainer width="100%" height={280}>
+                      <BarChart data={chartData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                        <XAxis dataKey="strikePrice" tick={{ fontSize: 11 }} />
+                        <YAxis tick={{ fontSize: 11 }} />
+                        <Tooltip />
+                        <Legend />
+                        <Bar dataKey="callOI" fill="#10b981" name="Call OI" />
+                        <Bar dataKey="putOI" fill="#f43f5e" name="Put OI" />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartCard>
 
-          <ChartCard title="Change in Open Interest">
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="strikePrice" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="callChangeOI" fill="#3b82f6" name="Call Chg OI" />
-                <Bar dataKey="putChangeOI" fill="#f97316" name="Put Chg OI" />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
+                  <ChartCard title="Change in Open Interest">
+                    <ResponsiveContainer width="100%" height={280}>
+                      <BarChart data={chartData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                        <XAxis dataKey="strikePrice" tick={{ fontSize: 11 }} />
+                        <YAxis tick={{ fontSize: 11 }} />
+                        <Tooltip />
+                        <Legend />
+                        <Bar
+                          dataKey="callChangeOI"
+                          fill="#3b82f6"
+                          name="Call Chg OI"
+                        />
+                        <Bar
+                          dataKey="putChangeOI"
+                          fill="#f97316"
+                          name="Put Chg OI"
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartCard>
 
-          <ChartCard title="Volume by Strike">
-            <ResponsiveContainer width="100%" height={280}>
-              <BarChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="strikePrice" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
-                <Tooltip />
-                <Legend />
-                <Bar dataKey="callVolume" fill="#8b5cf6" name="Call Volume" />
-                <Bar dataKey="putVolume" fill="#ec4899" name="Put Volume" />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
+                  <ChartCard title="Volume by Strike">
+                    <ResponsiveContainer width="100%" height={280}>
+                      <BarChart data={chartData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                        <XAxis dataKey="strikePrice" tick={{ fontSize: 11 }} />
+                        <YAxis tick={{ fontSize: 11 }} />
+                        <Tooltip />
+                        <Legend />
+                        <Bar
+                          dataKey="callVolume"
+                          fill="#8b5cf6"
+                          name="Call Volume"
+                        />
+                        <Bar
+                          dataKey="putVolume"
+                          fill="#ec4899"
+                          name="Put Volume"
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </ChartCard>
 
-          <ChartCard title="PCR by Strike">
-            <ResponsiveContainer width="100%" height={280}>
-              <LineChart data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="strikePrice" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
-                <Tooltip />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="pcr"
-                  stroke="#6366f1"
-                  strokeWidth={2}
-                  dot={false}
-                  name="PCR"
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </ChartCard>
-        </div>
-      )}
-
-      {/* Table */}
-      {loading && !tableData.length ? (
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
-          <span className="ml-2 text-slate-600 dark:text-slate-400">
-            Loading…
-          </span>
-        </div>
-      ) : tableData.length > 0 ? (
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 overflow-hidden">
-          <div className="overflow-auto max-h-[70vh]">
-            <table className="min-w-full text-sm text-left">
-              <thead className="bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-300 sticky top-0 z-10">
-                <tr>
-                  <th
-                    colSpan={5}
-                    className="px-3 py-2 font-bold text-center border-b border-slate-200 dark:border-slate-600 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-400"
-                  >
-                    CALLS
-                  </th>
-                  <th className="px-3 py-2 font-bold text-center border-b border-slate-200 dark:border-slate-600 bg-amber-50 dark:bg-amber-900/30 text-amber-800 dark:text-amber-400">
-                    Strike
-                  </th>
-                  <th
-                    colSpan={5}
-                    className="px-3 py-2 font-bold text-center border-b border-slate-200 dark:border-slate-600 bg-rose-50 dark:bg-rose-900/30 text-rose-800 dark:text-rose-400"
-                  >
-                    PUTS
-                  </th>
-                </tr>
-                <tr>
-                  <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
-                    OI
-                  </th>
-                  <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
-                    Chg OI
-                  </th>
-                  <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
-                    Volume
-                  </th>
-                  <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
-                    IV
-                  </th>
-                  <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
-                    LTP
-                  </th>
-                  <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600 text-center">
-                    Strike
-                  </th>
-                  <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
-                    LTP
-                  </th>
-                  <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
-                    IV
-                  </th>
-                  <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
-                    Volume
-                  </th>
-                  <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
-                    Chg OI
-                  </th>
-                  <th className="px-3 py-2 font-semibold border-b border-slate-200 dark:border-slate-600">
-                    OI
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                {tableData.map((row, idx) => {
-                  const isATM = row.strikePrice === atmStrike;
-                  return (
-                    <tr
-                      key={idx}
-                      className={`transition-colors ${
-                        isATM
-                          ? "bg-yellow-50 dark:bg-yellow-900/20"
-                          : "hover:bg-slate-50 dark:hover:bg-slate-700/50"
-                      }`}
-                    >
-                      <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
-                        {row.callOI.toLocaleString()}
-                      </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
-                        {row.callChangeOI.toLocaleString()}
-                      </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
-                        {row.callVolume.toLocaleString()}
-                      </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
-                        {row.callIV}
-                      </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
-                        {row.callLTP}
-                      </td>
-                      <td
-                        className={`px-3 py-2 whitespace-nowrap font-bold text-center ${
-                          isATM
-                            ? "text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-900/30"
-                            : "text-slate-800 dark:text-slate-200"
-                        }`}
-                      >
-                        {row.strikePrice}
-                      </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
-                        {row.putLTP}
-                      </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
-                        {row.putIV}
-                      </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
-                        {row.putVolume.toLocaleString()}
-                      </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
-                        {row.putChangeOI.toLocaleString()}
-                      </td>
-                      <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
-                        {row.putOI.toLocaleString()}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : null}
+                  <ChartCard title="PCR by Strike">
+                    <ResponsiveContainer width="100%" height={280}>
+                      <LineChart data={chartData}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                        <XAxis dataKey="strikePrice" tick={{ fontSize: 11 }} />
+                        <YAxis tick={{ fontSize: 11 }} />
+                        <Tooltip />
+                        <Legend />
+                        <Line
+                          type="monotone"
+                          dataKey="pcr"
+                          stroke="#6366f1"
+                          strokeWidth={2}
+                          dot={false}
+                          name="PCR"
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </ChartCard>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-64 text-slate-500 dark:text-slate-400">
+                  No chart data available. Select an index and expiry.
+                </div>
+              ),
+          },
+        ]}
+      />
     </div>
   );
 }

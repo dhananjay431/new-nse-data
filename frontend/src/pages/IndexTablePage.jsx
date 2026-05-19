@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { fetchAllIndices, fetchEquityStockIndices } from "../api/client";
+import Tabs from "../components/Tabs";
 import {
   ChevronDown,
   ChevronUp,
@@ -12,6 +13,7 @@ import {
   DollarSign,
   Activity,
   PieChart as PieChartIcon,
+  Table2,
 } from "lucide-react";
 import {
   BarChart,
@@ -115,14 +117,13 @@ function fmt(val) {
 
 export default function IndexTablePage() {
   const [indices, setIndices] = useState([]);
-  const [selectedIndex, setSelectedIndex] = useState("");
+  const [selectedIndex, setSelectedIndex] = useState("NIFTY 50");
   const [rawRows, setRawRows] = useState([]);
   const [indexMeta, setIndexMeta] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [sort, setSort] = useState({ key: null, direction: "asc" });
   const [filters, setFilters] = useState({});
-  const [tab, setTab] = useState("table");
 
   useEffect(() => {
     fetchAllIndices()
@@ -420,388 +421,409 @@ export default function IndexTablePage() {
         </div>
       )}
 
-      {/* Tab Switcher */}
-      <div className="flex gap-2 mb-4">
-        <button
-          onClick={() => setTab("table")}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-            tab === "table"
-              ? "bg-primary-600 text-white"
-              : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
-          }`}
-        >
-          Table
-        </button>
-        <button
-          onClick={() => setTab("charts")}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
-            tab === "charts"
-              ? "bg-primary-600 text-white"
-              : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
-          }`}
-        >
-          <BarChart3 className="w-4 h-4" /> Charts & Analysis
-        </button>
-        <button
-          onClick={() => setTab("industry")}
-          className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-1 ${
-            tab === "industry"
-              ? "bg-primary-600 text-white"
-              : "bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-700"
-          }`}
-        >
-          <PieChartIcon className="w-4 h-4" /> Industry
-        </button>
-      </div>
+      {/* Tabs */}
+      <Tabs
+        defaultTab="table"
+        tabs={[
+          {
+            id: "table",
+            label: "Table",
+            icon: Table2,
+            content: loading ? (
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+                <span className="ml-2 text-slate-600 dark:text-slate-400">
+                  Loading…
+                </span>
+              </div>
+            ) : (
+              <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 overflow-hidden">
+                <div className="overflow-auto max-h-[65vh]">
+                  <table className="min-w-full text-sm text-left">
+                    <thead className="bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200 sticky top-0">
+                      <tr>
+                        {columns.map((col) => (
+                          <th
+                            key={col}
+                            className="px-4 py-3 font-semibold border-b border-slate-200 dark:border-slate-700 cursor-pointer select-none whitespace-nowrap"
+                            onClick={() => handleSort(col)}
+                          >
+                            <div className="flex items-center gap-1">
+                              <span className="uppercase tracking-wide text-xs">
+                                {col.replace(/([A-Z])/g, " $1").trim()}
+                              </span>
+                              {sort.key === col &&
+                                (sort.direction === "asc" ? (
+                                  <ChevronUp className="w-4 h-4 text-primary-600" />
+                                ) : (
+                                  <ChevronDown className="w-4 h-4 text-primary-600" />
+                                ))}
+                            </div>
+                          </th>
+                        ))}
+                      </tr>
+                      <tr className="bg-white dark:bg-slate-800">
+                        {columns.map((col) => (
+                          <th
+                            key={col}
+                            className="px-4 py-2 border-b border-slate-200 dark:border-slate-700"
+                          >
+                            <div className="flex items-center gap-1">
+                              <select
+                                value={filters[col]?.operator || "="}
+                                onChange={(e) =>
+                                  handleFilterChange(
+                                    col,
+                                    "operator",
+                                    e.target.value,
+                                  )
+                                }
+                                className="px-1 py-1 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 dark:text-slate-200"
+                                title="Operator"
+                              >
+                                {OPERATORS.map((op) => (
+                                  <option key={op} value={op}>
+                                    {op}
+                                  </option>
+                                ))}
+                              </select>
+                              <input
+                                type="text"
+                                placeholder="Filter"
+                                value={filters[col]?.value || ""}
+                                onChange={(e) =>
+                                  handleFilterChange(
+                                    col,
+                                    "value",
+                                    e.target.value,
+                                  )
+                                }
+                                className="w-20 px-2 py-1 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 dark:text-slate-200"
+                              />
+                            </div>
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                      {sortedRows.length === 0 ? (
+                        <tr>
+                          <td
+                            colSpan={columns.length}
+                            className="px-4 py-8 text-center text-slate-500 dark:text-slate-400"
+                          >
+                            No data available.
+                          </td>
+                        </tr>
+                      ) : (
+                        sortedRows.map((row, idx) => (
+                          <tr
+                            key={idx}
+                            className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                          >
+                            {columns.map((col) => (
+                              <td
+                                key={col}
+                                className={`px-4 py-2 whitespace-nowrap ${
+                                  col === "pChange" || col === "change"
+                                    ? row[col] > 0
+                                      ? "text-emerald-600 dark:text-emerald-400 font-medium"
+                                      : row[col] < 0
+                                        ? "text-rose-600 dark:text-rose-400 font-medium"
+                                        : "text-slate-700 dark:text-slate-300"
+                                    : col === "industry"
+                                      ? "text-slate-500 dark:text-slate-400"
+                                      : "text-slate-700 dark:text-slate-300"
+                                }`}
+                              >
+                                {col === "pChange"
+                                  ? `${row[col] != null ? row[col].toFixed(2) + "%" : ""}`
+                                  : fmt(row[col])}
+                              </td>
+                            ))}
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ),
+          },
+          {
+            id: "charts",
+            label: "Charts & Analysis",
+            icon: BarChart3,
+            content: loading ? (
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+                <span className="ml-2 text-slate-600 dark:text-slate-400">
+                  Loading…
+                </span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <ChartCard title="Top 10 Gainers (% Change)">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={topGainersData} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis type="number" tick={{ fontSize: 11 }} />
+                      <YAxis
+                        dataKey="symbol"
+                        type="category"
+                        tick={{ fontSize: 11 }}
+                        width={90}
+                      />
+                      <Tooltip
+                        formatter={(v) => [`${v.toFixed(2)}%`, "Change"]}
+                      />
+                      <Bar
+                        dataKey="pChange"
+                        fill="#10b981"
+                        name="% Change"
+                        radius={[0, 4, 4, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartCard>
 
-      {loading ? (
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
-          <span className="ml-2 text-slate-600 dark:text-slate-400">
-            Loading…
-          </span>
-        </div>
-      ) : tab === "table" ? (
-        /* Table View */
-        <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 overflow-hidden">
-          <div className="overflow-auto max-h-[65vh]">
-            <table className="min-w-full text-sm text-left">
-              <thead className="bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-200 sticky top-0">
-                <tr>
-                  {columns.map((col) => (
-                    <th
-                      key={col}
-                      className="px-4 py-3 font-semibold border-b border-slate-200 dark:border-slate-700 cursor-pointer select-none whitespace-nowrap"
-                      onClick={() => handleSort(col)}
-                    >
-                      <div className="flex items-center gap-1">
-                        <span className="uppercase tracking-wide text-xs">
-                          {col.replace(/([A-Z])/g, " $1").trim()}
-                        </span>
-                        {sort.key === col &&
-                          (sort.direction === "asc" ? (
-                            <ChevronUp className="w-4 h-4 text-primary-600" />
-                          ) : (
-                            <ChevronDown className="w-4 h-4 text-primary-600" />
-                          ))}
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-                <tr className="bg-white dark:bg-slate-800">
-                  {columns.map((col) => (
-                    <th
-                      key={col}
-                      className="px-4 py-2 border-b border-slate-200 dark:border-slate-700"
-                    >
-                      <div className="flex items-center gap-1">
-                        <select
-                          value={filters[col]?.operator || "="}
-                          onChange={(e) =>
-                            handleFilterChange(col, "operator", e.target.value)
-                          }
-                          className="px-1 py-1 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 dark:text-slate-200"
-                          title="Operator"
-                        >
-                          {OPERATORS.map((op) => (
-                            <option key={op} value={op}>
-                              {op}
-                            </option>
-                          ))}
-                        </select>
-                        <input
-                          type="text"
-                          placeholder="Filter"
-                          value={filters[col]?.value || ""}
-                          onChange={(e) =>
-                            handleFilterChange(col, "value", e.target.value)
-                          }
-                          className="w-20 px-2 py-1 bg-slate-50 dark:bg-slate-700 border border-slate-300 dark:border-slate-600 rounded text-xs focus:outline-none focus:ring-1 focus:ring-primary-500 dark:text-slate-200"
-                        />
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                {sortedRows.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={columns.length}
-                      className="px-4 py-8 text-center text-slate-500 dark:text-slate-400"
-                    >
-                      No data available.
-                    </td>
-                  </tr>
-                ) : (
-                  sortedRows.map((row, idx) => (
-                    <tr
-                      key={idx}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
-                    >
-                      {columns.map((col) => (
-                        <td
-                          key={col}
-                          className={`px-4 py-2 whitespace-nowrap ${
-                            col === "pChange" || col === "change"
-                              ? row[col] > 0
-                                ? "text-emerald-600 dark:text-emerald-400 font-medium"
-                                : row[col] < 0
-                                  ? "text-rose-600 dark:text-rose-400 font-medium"
-                                  : "text-slate-700 dark:text-slate-300"
-                              : col === "industry"
-                                ? "text-slate-500 dark:text-slate-400"
-                                : "text-slate-700 dark:text-slate-300"
-                          }`}
-                        >
-                          {col === "pChange"
-                            ? `${row[col] != null ? row[col].toFixed(2) + "%" : ""}`
-                            : fmt(row[col])}
-                        </td>
-                      ))}
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : tab === "charts" ? (
-        /* Charts & Analysis View */
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <ChartCard title="Top 10 Gainers (% Change)">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={topGainersData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis type="number" tick={{ fontSize: 11 }} />
-                <YAxis
-                  dataKey="symbol"
-                  type="category"
-                  tick={{ fontSize: 11 }}
-                  width={90}
-                />
-                <Tooltip formatter={(v) => [`${v.toFixed(2)}%`, "Change"]} />
-                <Bar
-                  dataKey="pChange"
-                  fill="#10b981"
-                  name="% Change"
-                  radius={[0, 4, 4, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
+                <ChartCard title="Top 10 Losers (% Change)">
+                  <ResponsiveContainer width="100%" height={300}>
+                    <BarChart data={topLosersData} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis type="number" tick={{ fontSize: 11 }} />
+                      <YAxis
+                        dataKey="symbol"
+                        type="category"
+                        tick={{ fontSize: 11 }}
+                        width={90}
+                      />
+                      <Tooltip
+                        formatter={(v) => [`${v.toFixed(2)}%`, "Change"]}
+                      />
+                      <Bar
+                        dataKey="pChange"
+                        fill="#f43f5e"
+                        name="% Change"
+                        radius={[0, 4, 4, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartCard>
 
-          <ChartCard title="Top 10 Losers (% Change)">
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={topLosersData} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis type="number" tick={{ fontSize: 11 }} />
-                <YAxis
-                  dataKey="symbol"
-                  type="category"
-                  tick={{ fontSize: 11 }}
-                  width={90}
-                />
-                <Tooltip formatter={(v) => [`${v.toFixed(2)}%`, "Change"]} />
-                <Bar
-                  dataKey="pChange"
-                  fill="#f43f5e"
-                  name="% Change"
-                  radius={[0, 4, 4, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
-
-          <ChartCard title="Industry Performance (Avg % Change)">
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={industryPerformance} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis type="number" tick={{ fontSize: 11 }} />
-                <YAxis
-                  dataKey="name"
-                  type="category"
-                  tick={{ fontSize: 10 }}
-                  width={180}
-                />
-                <Tooltip
-                  formatter={(v) => [`${v.toFixed(2)}%`, "Avg Change"]}
-                />
-                <Bar
-                  dataKey="avgPChange"
-                  name="Avg % Change"
-                  radius={[0, 4, 4, 0]}
-                >
-                  {industryPerformance.map((entry, i) => (
-                    <Cell
-                      key={i}
-                      fill={entry.avgPChange >= 0 ? "#10b981" : "#f43f5e"}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
-
-          <ChartCard title="Volume by Industry">
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={volumeByIndustry} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis
-                  type="number"
-                  tick={{ fontSize: 11 }}
-                  tickFormatter={(v) => (v / 1e6).toFixed(0) + "M"}
-                />
-                <YAxis
-                  dataKey="name"
-                  type="category"
-                  tick={{ fontSize: 10 }}
-                  width={180}
-                />
-                <Tooltip
-                  formatter={(v) => [(v / 1e6).toFixed(1) + "M", "Volume"]}
-                />
-                <Bar
-                  dataKey="totalTradedVolume"
-                  fill="#6366f1"
-                  name="Volume"
-                  radius={[0, 4, 4, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
-        </div>
-      ) : (
-        /* Industry View */
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-          <ChartCard title="Industry Distribution">
-            <ResponsiveContainer width="100%" height={400}>
-              <PieChart>
-                <Pie
-                  data={industryData}
-                  dataKey="count"
-                  nameKey="name"
-                  cx="50%"
-                  cy="50%"
-                  outerRadius={140}
-                  label={({ name, percent }) =>
-                    `${name.substring(0, 20)} (${(percent * 100).toFixed(0)}%)`
-                  }
-                  labelLine={true}
-                  fontSize={10}
-                >
-                  {industryData.map((entry, i) => (
-                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </ChartCard>
-
-          <ChartCard title="Stock Count by Industry">
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={industryData.slice(0, 12)} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis type="number" tick={{ fontSize: 11 }} />
-                <YAxis
-                  dataKey="name"
-                  type="category"
-                  tick={{ fontSize: 10 }}
-                  width={180}
-                />
-                <Tooltip />
-                <Bar
-                  dataKey="count"
-                  fill="#8b5cf6"
-                  name="Stocks"
-                  radius={[0, 4, 4, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
-
-          <ChartCard title="Industry Avg % Change (All)">
-            <ResponsiveContainer width="100%" height={400}>
-              <BarChart data={industryPerformance} layout="vertical">
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis type="number" tick={{ fontSize: 11 }} />
-                <YAxis
-                  dataKey="name"
-                  type="category"
-                  tick={{ fontSize: 10 }}
-                  width={180}
-                />
-                <Tooltip
-                  formatter={(v) => [`${v.toFixed(2)}%`, "Avg Change"]}
-                />
-                <Bar
-                  dataKey="avgPChange"
-                  name="Avg % Change"
-                  radius={[0, 4, 4, 0]}
-                >
-                  {industryPerformance.map((entry, i) => (
-                    <Cell
-                      key={i}
-                      fill={entry.avgPChange >= 0 ? "#10b981" : "#f43f5e"}
-                    />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </ChartCard>
-
-          {/* Industry Details Table */}
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 p-4 lg:col-span-2">
-            <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-              Industry Summary
-            </h3>
-            <div className="overflow-auto max-h-[400px]">
-              <table className="min-w-full text-sm text-left">
-                <thead className="bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-300 sticky top-0">
-                  <tr>
-                    <th className="px-4 py-2 font-semibold border-b border-slate-200 dark:border-slate-700">
-                      Industry
-                    </th>
-                    <th className="px-4 py-2 font-semibold border-b border-slate-200 dark:border-slate-700 text-right">
-                      Stocks
-                    </th>
-                    <th className="px-4 py-2 font-semibold border-b border-slate-200 dark:border-slate-700 text-right">
-                      Avg % Change
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-                  {industryData.map((row, idx) => (
-                    <tr
-                      key={idx}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
-                    >
-                      <td className="px-4 py-2 text-slate-700 dark:text-slate-300">
-                        {row.name}
-                      </td>
-                      <td className="px-4 py-2 text-right text-slate-700 dark:text-slate-300">
-                        {row.count}
-                      </td>
-                      <td
-                        className={`px-4 py-2 text-right font-medium ${
-                          row.avgPChange > 0
-                            ? "text-emerald-600 dark:text-emerald-400"
-                            : row.avgPChange < 0
-                              ? "text-rose-600 dark:text-rose-400"
-                              : "text-slate-700 dark:text-slate-300"
-                        }`}
+                <ChartCard title="Industry Performance (Avg % Change)">
+                  <ResponsiveContainer width="100%" height={400}>
+                    <BarChart data={industryPerformance} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis type="number" tick={{ fontSize: 11 }} />
+                      <YAxis
+                        dataKey="name"
+                        type="category"
+                        tick={{ fontSize: 10 }}
+                        width={180}
+                      />
+                      <Tooltip
+                        formatter={(v) => [`${v.toFixed(2)}%`, "Avg Change"]}
+                      />
+                      <Bar
+                        dataKey="avgPChange"
+                        name="Avg % Change"
+                        radius={[0, 4, 4, 0]}
                       >
-                        {row.avgPChange.toFixed(2)}%
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      )}
+                        {industryPerformance.map((entry, i) => (
+                          <Cell
+                            key={i}
+                            fill={entry.avgPChange >= 0 ? "#10b981" : "#f43f5e"}
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartCard>
+
+                <ChartCard title="Volume by Industry">
+                  <ResponsiveContainer width="100%" height={400}>
+                    <BarChart data={volumeByIndustry} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis
+                        type="number"
+                        tick={{ fontSize: 11 }}
+                        tickFormatter={(v) => (v / 1e6).toFixed(0) + "M"}
+                      />
+                      <YAxis
+                        dataKey="name"
+                        type="category"
+                        tick={{ fontSize: 10 }}
+                        width={180}
+                      />
+                      <Tooltip
+                        formatter={(v) => [
+                          (v / 1e6).toFixed(1) + "M",
+                          "Volume",
+                        ]}
+                      />
+                      <Bar
+                        dataKey="totalTradedVolume"
+                        fill="#6366f1"
+                        name="Volume"
+                        radius={[0, 4, 4, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartCard>
+              </div>
+            ),
+          },
+          {
+            id: "industry",
+            label: "Industry",
+            icon: PieChartIcon,
+            content: loading ? (
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+                <span className="ml-2 text-slate-600 dark:text-slate-400">
+                  Loading…
+                </span>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <ChartCard title="Industry Distribution">
+                  <ResponsiveContainer width="100%" height={400}>
+                    <PieChart>
+                      <Pie
+                        data={industryData}
+                        dataKey="count"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={140}
+                        label={({ name, percent }) =>
+                          `${name.substring(0, 20)} (${(percent * 100).toFixed(0)}%)`
+                        }
+                        labelLine={true}
+                        fontSize={10}
+                      >
+                        {industryData.map((entry, i) => (
+                          <Cell
+                            key={i}
+                            fill={PIE_COLORS[i % PIE_COLORS.length]}
+                          />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </ChartCard>
+
+                <ChartCard title="Stock Count by Industry">
+                  <ResponsiveContainer width="100%" height={400}>
+                    <BarChart
+                      data={industryData.slice(0, 12)}
+                      layout="vertical"
+                    >
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis type="number" tick={{ fontSize: 11 }} />
+                      <YAxis
+                        dataKey="name"
+                        type="category"
+                        tick={{ fontSize: 10 }}
+                        width={180}
+                      />
+                      <Tooltip />
+                      <Bar
+                        dataKey="count"
+                        fill="#8b5cf6"
+                        name="Stocks"
+                        radius={[0, 4, 4, 0]}
+                      />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartCard>
+
+                <ChartCard title="Industry Avg % Change (All)">
+                  <ResponsiveContainer width="100%" height={400}>
+                    <BarChart data={industryPerformance} layout="vertical">
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                      <XAxis type="number" tick={{ fontSize: 11 }} />
+                      <YAxis
+                        dataKey="name"
+                        type="category"
+                        tick={{ fontSize: 10 }}
+                        width={180}
+                      />
+                      <Tooltip
+                        formatter={(v) => [`${v.toFixed(2)}%`, "Avg Change"]}
+                      />
+                      <Bar
+                        dataKey="avgPChange"
+                        name="Avg % Change"
+                        radius={[0, 4, 4, 0]}
+                      >
+                        {industryPerformance.map((entry, i) => (
+                          <Cell
+                            key={i}
+                            fill={entry.avgPChange >= 0 ? "#10b981" : "#f43f5e"}
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartCard>
+
+                {/* Industry Details Table */}
+                <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 p-4 lg:col-span-2">
+                  <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                    Industry Summary
+                  </h3>
+                  <div className="overflow-auto max-h-[400px]">
+                    <table className="min-w-full text-sm text-left">
+                      <thead className="bg-slate-50 dark:bg-slate-700 text-slate-700 dark:text-slate-300 sticky top-0">
+                        <tr>
+                          <th className="px-4 py-2 font-semibold border-b border-slate-200 dark:border-slate-700">
+                            Industry
+                          </th>
+                          <th className="px-4 py-2 font-semibold border-b border-slate-200 dark:border-slate-700 text-right">
+                            Stocks
+                          </th>
+                          <th className="px-4 py-2 font-semibold border-b border-slate-200 dark:border-slate-700 text-right">
+                            Avg % Change
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+                        {industryData.map((row, idx) => (
+                          <tr
+                            key={idx}
+                            className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
+                          >
+                            <td className="px-4 py-2 text-slate-700 dark:text-slate-300">
+                              {row.name}
+                            </td>
+                            <td className="px-4 py-2 text-right text-slate-700 dark:text-slate-300">
+                              {row.count}
+                            </td>
+                            <td
+                              className={`px-4 py-2 text-right font-medium ${
+                                row.avgPChange > 0
+                                  ? "text-emerald-600 dark:text-emerald-400"
+                                  : row.avgPChange < 0
+                                    ? "text-rose-600 dark:text-rose-400"
+                                    : "text-slate-700 dark:text-slate-300"
+                              }`}
+                            >
+                              {row.avgPChange.toFixed(2)}%
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            ),
+          },
+        ]}
+      />
     </div>
   );
 }
