@@ -79,6 +79,18 @@ function getHeatColor(p) {
   return { bg: "bg-rose-600", text: "text-white" };
 }
 
+function getRowBg(p) {
+  if (p >= 3) return "bg-emerald-100 dark:bg-emerald-900/30";
+  if (p >= 2) return "bg-emerald-50 dark:bg-emerald-900/20";
+  if (p >= 1) return "bg-emerald-50/60 dark:bg-emerald-900/10";
+  if (p > 0) return "bg-emerald-50/30 dark:bg-emerald-900/5";
+  if (p === 0) return "";
+  if (p >= -1) return "bg-rose-50/30 dark:bg-rose-900/5";
+  if (p >= -2) return "bg-rose-50/60 dark:bg-rose-900/10";
+  if (p >= -3) return "bg-rose-50 dark:bg-rose-900/20";
+  return "bg-rose-100 dark:bg-rose-900/30";
+}
+
 export default function AllIndicesPage() {
   const [indices, setIndices] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -240,31 +252,36 @@ export default function AllIndicesPage() {
                   </td>
                 </tr>
               ) : (
-                sortedRows.map((row, idx) => (
-                  <tr
-                    key={idx}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors"
-                  >
-                    {visibleColumns.map((col) => (
-                      <td
-                        key={col}
-                        className={`px-4 py-2 whitespace-nowrap ${
-                          pChangeFields.includes(col)
-                            ? row[col] > 0
-                              ? "text-emerald-600 dark:text-emerald-400 font-medium"
-                              : row[col] < 0
-                                ? "text-rose-600 dark:text-rose-400 font-medium"
-                                : "text-slate-700 dark:text-slate-300"
-                            : "text-slate-700 dark:text-slate-300"
-                        }`}
-                      >
-                        {pChangeFields.includes(col) && row[col] != null
-                          ? `${Number(row[col]).toFixed(2)}%`
-                          : fmt(row[col])}
-                      </td>
-                    ))}
-                  </tr>
-                ))
+                sortedRows.map((row, idx) => {
+                  const pChange =
+                    row.pChange || row.percChange || row.change || 0;
+                  const rowBg = getRowBg(Number(pChange));
+                  return (
+                    <tr
+                      key={idx}
+                      className={`${rowBg} hover:brightness-95 dark:hover:brightness-110 transition-colors`}
+                    >
+                      {visibleColumns.map((col) => (
+                        <td
+                          key={col}
+                          className={`px-4 py-2 whitespace-nowrap ${
+                            pChangeFields.includes(col)
+                              ? row[col] > 0
+                                ? "text-emerald-600 dark:text-emerald-400 font-medium"
+                                : row[col] < 0
+                                  ? "text-rose-600 dark:text-rose-400 font-medium"
+                                  : "text-slate-700 dark:text-slate-300"
+                              : "text-slate-700 dark:text-slate-300"
+                          }`}
+                        >
+                          {pChangeFields.includes(col) && row[col] != null
+                            ? `${Number(row[col]).toFixed(2)}%`
+                            : fmt(row[col])}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
