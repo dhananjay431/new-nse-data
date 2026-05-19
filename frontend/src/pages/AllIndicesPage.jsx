@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp, Filter } from "lucide-react";
 const OPERATORS = ["=", ">=", "<=", ">", "<"];
 
 const ALL_IDX_HIDDEN_COLS = new Set([
+  "key",
   "chartTodayPath",
   "chart30dPath",
   "chart365dPath",
