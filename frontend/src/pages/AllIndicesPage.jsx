@@ -1,6 +1,12 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { fetchAllIndices } from "../api/client";
-import { ChevronDown, ChevronUp, Filter } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronUp,
+  Filter,
+  Table2,
+  LayoutGrid,
+} from "lucide-react";
 
 const OPERATORS = ["=", ">=", "<=", ">", "<"];
 
@@ -59,6 +65,20 @@ function fmt(val) {
   return String(val);
 }
 
+function getHeatColor(p) {
+  if (p >= 3) return { bg: "bg-emerald-600", text: "text-white" };
+  if (p >= 1) return { bg: "bg-emerald-400", text: "text-white" };
+  if (p > 0) return { bg: "bg-emerald-200", text: "text-emerald-800" };
+  if (p === 0)
+    return {
+      bg: "bg-slate-200 dark:bg-slate-600",
+      text: "text-slate-600 dark:text-slate-300",
+    };
+  if (p >= -1) return { bg: "bg-rose-200", text: "text-rose-800" };
+  if (p >= -3) return { bg: "bg-rose-400", text: "text-white" };
+  return { bg: "bg-rose-600", text: "text-white" };
+}
+
 export default function AllIndicesPage() {
   const [indices, setIndices] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -67,6 +87,7 @@ export default function AllIndicesPage() {
   const [filters, setFilters] = useState({});
   const [groupBy, setGroupBy] = useState("");
   const [groupValue, setGroupValue] = useState("");
+  const [viewMode, setViewMode] = useState("table");
 
   useEffect(() => {
     setLoading(true);
@@ -252,10 +273,134 @@ export default function AllIndicesPage() {
     );
   }
 
+  function renderHeatmap() {
+    if (sortedRows.length === 0) {
+      return (
+        <div className="flex items-center justify-center h-64 text-slate-500 dark:text-slate-400">
+          No data available.
+        </div>
+      );
+    }
+
+    const sorted = [...sortedRows].sort(
+      (a, b) => (b.pChange || 0) - (a.pChange || 0),
+    );
+
+    // Find the pChange field name
+    const pField = columns.find((c) => c === "pChange") || "pChange";
+    const nameField =
+      columns.find((c) => c === "indexName") ||
+      columns.find((c) => c === "name") ||
+      columns[0];
+    const lastField = columns.find((c) => c === "last") || null;
+    const changeField = columns.find((c) => c === "change") || null;
+
+    return (
+      <div className="flex flex-col gap-4">
+        {/* Legend */}
+        <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+          <span className="font-medium">pChange:</span>
+          <span className="px-2 py-0.5 rounded bg-rose-600 text-white">
+            ≤ -3%
+          </span>
+          <span className="px-2 py-0.5 rounded bg-rose-400 text-white">
+            -3% to -1%
+          </span>
+          <span className="px-2 py-0.5 rounded bg-rose-200 text-rose-800">
+            -1% to 0%
+          </span>
+          <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-600 dark:bg-slate-600 dark:text-slate-300">
+            0%
+          </span>
+          <span className="px-2 py-0.5 rounded bg-emerald-200 text-emerald-800">
+            0% to 1%
+          </span>
+          <span className="px-2 py-0.5 rounded bg-emerald-400 text-white">
+            1% to 3%
+          </span>
+          <span className="px-2 py-0.5 rounded bg-emerald-600 text-white">
+            ≥ 3%
+          </span>
+        </div>
+
+        {/* Heatmap Grid */}
+        <div className="flex flex-wrap gap-2">
+          {sorted.map((row, idx) => {
+            const p = row[pField] || 0;
+            const { bg, text } = getHeatColor(p);
+            const name = row[nameField] || `Index ${idx}`;
+            const last = lastField ? row[lastField] : null;
+            const change = changeField ? row[changeField] : null;
+
+            return (
+              <a
+                key={idx}
+                href={`https://www.tradingview.com/chart/?symbol=NSE:${name}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${bg} ${text} rounded-lg px-3 py-2 hover:opacity-80 transition-opacity cursor-pointer flex flex-col items-center min-w-[90px]`}
+                title={`${name}: ${p >= 0 ? "+" : ""}${p.toFixed(2)}%`}
+              >
+                <span className="font-semibold text-xs leading-tight text-center">
+                  {name}
+                </span>
+                {last != null && (
+                  <span className="text-[10px] leading-tight">
+                    {typeof last === "number" ? last.toLocaleString() : last}
+                  </span>
+                )}
+                <span className="text-xs font-medium leading-tight">
+                  {p >= 0 ? "+" : ""}
+                  {p.toFixed(2)}%
+                </span>
+                {change != null && (
+                  <span className="text-[10px] leading-tight">
+                    {change >= 0 ? "+" : ""}
+                    {typeof change === "number" ? change.toFixed(2) : change}
+                  </span>
+                )}
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-3">
-      {/* Group By Controls */}
+      {/* Controls Bar */}
       <div className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 p-4 flex flex-wrap items-center gap-3">
+        {/* View Toggle */}
+        <div className="flex items-center bg-slate-100 dark:bg-slate-700 rounded-lg p-0.5">
+          <button
+            onClick={() => setViewMode("table")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              viewMode === "table"
+                ? "bg-white dark:bg-slate-600 text-primary-600 dark:text-primary-400 shadow-sm"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+            }`}
+          >
+            <Table2 className="w-3.5 h-3.5" />
+            Table
+          </button>
+          <button
+            onClick={() => setViewMode("heatmap")}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+              viewMode === "heatmap"
+                ? "bg-white dark:bg-slate-600 text-primary-600 dark:text-primary-400 shadow-sm"
+                : "text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-300"
+            }`}
+          >
+            <LayoutGrid className="w-3.5 h-3.5" />
+            Heatmap
+          </button>
+        </div>
+
+        {/* Divider */}
+        <div className="w-px h-6 bg-slate-200 dark:bg-slate-600" />
+
+        {/* Group By */}
         <div className="flex items-center gap-2">
           <Filter className="w-4 h-4 text-slate-500 dark:text-slate-400" />
           <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -321,6 +466,8 @@ export default function AllIndicesPage() {
             Loading…
           </span>
         </div>
+      ) : viewMode === "heatmap" ? (
+        renderHeatmap()
       ) : (
         renderSortableTable()
       )}
