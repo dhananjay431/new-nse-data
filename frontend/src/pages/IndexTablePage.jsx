@@ -18,6 +18,7 @@ import {
   List,
   Landmark,
   CandlestickChart,
+  LayoutGrid,
 } from "lucide-react";
 
 const OPERATORS = ["=", ">=", "<=", ">", "<"];
@@ -456,6 +457,126 @@ export default function IndexTablePage() {
                     pChangeFields: ["pChange", "change"],
                   })
                 )}
+              </div>
+            ),
+          },
+          {
+            id: "heatmap",
+            label: "Heatmap",
+            icon: LayoutGrid,
+            content: loading ? (
+              <div className="flex items-center justify-center h-64">
+                <Loader2 className="w-8 h-8 text-primary-600 animate-spin" />
+                <span className="ml-2 text-slate-600 dark:text-slate-400">
+                  Loading…
+                </span>
+              </div>
+            ) : flatRows.length === 0 ? (
+              <div className="flex items-center justify-center h-64 text-slate-500 dark:text-slate-400">
+                No data available.
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {/* Legend */}
+                <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                  <span className="font-medium">pChange:</span>
+                  <span className="px-2 py-0.5 rounded bg-rose-600 text-white">
+                    ≤ -3%
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-rose-400 text-white">
+                    -3% to -1%
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-rose-200 text-rose-800">
+                    -1% to 0%
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-slate-200 text-slate-600 dark:bg-slate-600 dark:text-slate-300">
+                    0%
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-emerald-200 text-emerald-800">
+                    0% to 1%
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-emerald-400 text-white">
+                    1% to 3%
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-emerald-600 text-white">
+                    ≥ 3%
+                  </span>
+                </div>
+                {/* Heatmap by Industry */}
+                {(() => {
+                  const groups = {};
+                  flatRows.forEach((r) => {
+                    const ind = r.industry || "Other";
+                    if (!groups[ind]) groups[ind] = [];
+                    groups[ind].push(r);
+                  });
+                  const sortedGroups = Object.entries(groups).sort(
+                    (a, b) => b[1].length - a[1].length,
+                  );
+                  return sortedGroups.map(([industry, stocks]) => (
+                    <div
+                      key={industry}
+                      className="bg-white dark:bg-slate-800 rounded-xl shadow border border-slate-200 dark:border-slate-700 p-4"
+                    >
+                      <div className="flex items-center justify-between mb-3">
+                        <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+                          {industry}
+                        </h3>
+                        <span className="text-xs text-slate-500 dark:text-slate-400">
+                          {stocks.length} stocks
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {stocks
+                          .sort((a, b) => (b.pChange || 0) - (a.pChange || 0))
+                          .map((stock) => {
+                            const p = stock.pChange || 0;
+                            let bg, text;
+                            if (p >= 3) {
+                              bg = "bg-emerald-600";
+                              text = "text-white";
+                            } else if (p >= 1) {
+                              bg = "bg-emerald-400";
+                              text = "text-white";
+                            } else if (p > 0) {
+                              bg = "bg-emerald-200";
+                              text = "text-emerald-800";
+                            } else if (p === 0) {
+                              bg = "bg-slate-200 dark:bg-slate-600";
+                              text = "text-slate-600 dark:text-slate-300";
+                            } else if (p >= -1) {
+                              bg = "bg-rose-200";
+                              text = "text-rose-800";
+                            } else if (p >= -3) {
+                              bg = "bg-rose-400";
+                              text = "text-white";
+                            } else {
+                              bg = "bg-rose-600";
+                              text = "text-white";
+                            }
+                            return (
+                              <a
+                                key={stock.symbol}
+                                href={`https://www.tradingview.com/chart/?symbol=NSE:${stock.symbol}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className={`${bg} ${text} px-2 py-1.5 rounded text-xs font-medium hover:opacity-80 transition-opacity cursor-pointer flex flex-col items-center min-w-[70px]`}
+                                title={`${stock.companyName || stock.symbol}: ${p.toFixed(2)}%`}
+                              >
+                                <span className="font-semibold leading-tight">
+                                  {stock.symbol}
+                                </span>
+                                <span className="text-[10px] leading-tight">
+                                  {p >= 0 ? "+" : ""}
+                                  {p.toFixed(2)}%
+                                </span>
+                              </a>
+                            );
+                          })}
+                      </div>
+                    </div>
+                  ));
+                })()}
               </div>
             ),
           },
