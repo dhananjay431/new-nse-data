@@ -175,7 +175,7 @@ export default function AllIndicesPage() {
     });
   }, [filteredRows, sort]);
 
-  const pChangeFields = ["pChange", "percChange", "change"];
+  const pChangeFields = ["percentChange", "pChange", "percChange", "change"];
 
   function renderSortableTable() {
     return (
@@ -254,7 +254,11 @@ export default function AllIndicesPage() {
               ) : (
                 sortedRows.map((row, idx) => {
                   const pChange =
-                    row.pChange || row.percChange || row.change || 0;
+                    row.percentChange ||
+                    row.pChange ||
+                    row.percChange ||
+                    row.change ||
+                    0;
                   const rowBg = getRowBg(Number(pChange));
                   return (
                     <tr
@@ -300,11 +304,16 @@ export default function AllIndicesPage() {
     }
 
     const sorted = [...sortedRows].sort(
-      (a, b) => (b.pChange || 0) - (a.pChange || 0),
+      (a, b) =>
+        (b.percentChange || b.pChange || b.percChange || b.change || 0) -
+        (a.percentChange || a.pChange || a.percChange || a.change || 0),
     );
 
     // Find the pChange field name
-    const pField = columns.find((c) => c === "pChange") || "pChange";
+    const pField =
+      columns.find((c) => c === "percentChange") ||
+      columns.find((c) => c === "pChange") ||
+      "pChange";
     const nameField =
       columns.find((c) => c === "indexName") ||
       columns.find((c) => c === "name") ||
